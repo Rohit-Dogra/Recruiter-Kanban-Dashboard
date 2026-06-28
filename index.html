@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HirerMind - AI Recruitment Platform</title>
+    <meta name="description" content="Revolutionize your hiring process with AI-powered candidate matching, automated resume parsing, and intelligent recruitment pipeline management." />
+    <meta name="author" content="HirerMind" />
+
+    <meta property="og:title" content="HirerMind - AI Recruitment Platform" />
+    <meta property="og:description" content="Revolutionize your hiring process with AI-powered candidate matching, automated resume parsing, and intelligent recruitment pipeline management." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@hirermind" />
+    <meta name="twitter:image" content="" />
+    
+    <!-- Suppress Google Sign-In errors if not configured -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('GSI_LOGGER')) {
+          e.preventDefault();
+          return false;
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
