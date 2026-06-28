@@ -1,6 +1,6 @@
-# HirerMind - AI-powered Recruitment Platform
+#  Recruiter-Kanban-Dashboard - AI-powered Recruitment Platform
 
-𝐇𝐢𝐫𝐞𝐫𝐌𝐢𝐧𝐝 is a full-stack AI-powered recruitment platform designed to streamline the entire hiring process. The platform enables organizations to create and manage job postings, track candidates through various hiring stages, conduct application screening with custom questions, schedule interviews, and analyze hiring metrics. Built with modern web technologies, it features secure user authentication and integrates AI capabilities for generating interview questions, making recruitment more efficient and data-driven.
+ Recruiter-Kanban-Dashboard� is a full-stack AI-powered recruitment platform designed to streamline the entire hiring process. The platform enables organizations to create and manage job postings, track candidates through various hiring stages, conduct application screening with custom questions, schedule interviews, and analyze hiring metrics. Built with modern web technologies, it features secure user authentication and integrates AI capabilities for generating interview questions, making recruitment more efficient and data-driven.
 
 𝗠𝗮𝗶𝗻 𝗙𝘂𝗻𝗰𝘁𝗶𝗼𝗻 𝗣𝗼𝗶𝗻𝘁𝘀
 
