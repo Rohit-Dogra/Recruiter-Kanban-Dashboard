@@ -263,7 +263,7 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
       id: "new",
       title: "Applied",
       icon: FileText,
-      color: "bg-blue-500",
+      color: "bg-info",
       candidates: [],
       actionType: "none"
     },
@@ -271,7 +271,7 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
       id: "reviewed",
       title: "Phone Screening",
       icon: Phone,
-      color: "bg-yellow-500",
+      color: "bg-warning",
       candidates: [],
       actionType: "call"
     },
@@ -279,7 +279,7 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
       id: "shortlisted",
       title: "Technical Interview",
       icon: Video,
-      color: "bg-purple-500",
+      color: "bg-primary",
       candidates: [],
       actionType: "interview"
     },
@@ -287,7 +287,7 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
       id: "interview",
       title: "Final Review",
       icon: Users,
-      color: "bg-orange-500",
+      color: "bg-warning",
       candidates: [],
       actionType: "email"
     },
@@ -295,7 +295,7 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
       id: "offered",
       title: "Offer Extended",
       icon: Award,
-      color: "bg-green-500",
+      color: "bg-success",
       candidates: [],
       actionType: "email"
     },
@@ -303,7 +303,7 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
       id: "hired",
       title: "Hired",
       icon: CheckCircle,
-      color: "bg-emerald-600",
+      color: "bg-success",
       candidates: [],
       actionType: "email"
     }
@@ -857,7 +857,9 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
               <h3 className="text-sm font-semibold text-muted-foreground mb-2 px-1">
                 {getJobLabel(jobIdLabel)}
               </h3>
-              <div className={isMobile ? "flex flex-col gap-4 pb-4" : "flex gap-6 overflow-x-auto pb-4"}>
+              <div className={isMobile
+                ? "flex flex-col gap-3 pb-4"
+                : "scroll-x flex gap-4 pb-4 -mx-1 px-1"}>
                 {getStagesForJob(jobIdLabel).map((stage) => (
                   <KanbanColumn
                     key={`${stage.id}-${jobIdLabel}`}
@@ -906,7 +908,9 @@ export const KanbanBoard = ({ jobId, applications = [], onRefresh, customStages 
           )}
         </div>
       ) : (
-      <div className={isMobile ? "flex flex-col gap-4 pb-4" : "flex gap-6 overflow-x-auto pb-4"}>
+      <div className={isMobile
+                ? "flex flex-col gap-3 pb-4"
+                : "scroll-x flex gap-4 pb-4 -mx-1 px-1"}>
         {stages.map((stage) => (
           <KanbanColumn
             key={stage.id}

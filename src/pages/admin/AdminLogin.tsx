@@ -8,6 +8,7 @@ import { Shield, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import unifiedAuthService from "@/services/unified-auth.service";
+import { BRAND } from "@/lib/brand";
 
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -77,13 +78,13 @@ const AdminLogin = () => {
           </Link>
 
           <div className="flex justify-center mb-4">
-            <div className="flex items-center justify-center w-14 h-14 bg-red-500/10 rounded-2xl">
-              <Shield className="w-8 h-8 text-red-500" />
+            <div className="flex items-center justify-center w-14 h-14 bg-destructive/10 rounded-2xl">
+              <Shield className="w-8 h-8 text-destructive" />
             </div>
           </div>
           <h1 className="text-2xl font-bold">Admin Login</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Sign in to the HirerMind admin panel
+            Sign in to the Hyre admin panel
           </p>
         </div>
 
@@ -102,7 +103,7 @@ const AdminLogin = () => {
                 <Input
                   id="admin-email"
                   type="email"
-                  placeholder="admin@hirermind.com"
+                  placeholder={BRAND.email.adminExample}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -141,7 +142,7 @@ const AdminLogin = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white"
+                className="w-full bg-destructive hover:bg-destructive/90 text-white"
                 size="lg"
                 disabled={isLoading}
               >

@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/select";
 
 const paymentStatusColors: Record<string, string> = {
-  COMPLETED: "bg-green-500/15 text-green-600",
-  INITIATED: "bg-yellow-500/15 text-yellow-600",
-  FAILED: "bg-red-500/15 text-red-500",
-  TIMEOUT: "bg-gray-500/15 text-gray-500",
+  COMPLETED: "bg-success/15 text-success",
+  INITIATED: "bg-warning/15 text-warning",
+  FAILED: "bg-destructive/15 text-destructive",
+  TIMEOUT: "bg-muted-foreground/15 text-muted-foreground",
 };
 
 const PaymentManagement = () => {

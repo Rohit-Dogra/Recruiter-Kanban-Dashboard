@@ -481,19 +481,19 @@ const getJobQuestions = (job: Job) => {
         {isLoggedIn && (
           <div className="flex items-center justify-center mb-6">
             <div className="flex items-center space-x-4">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 1 ? 'bg-info text-white' : 'bg-border'}`}>
                 {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
               </div>
               {isFirstTimeApplicant && (
                 <>
-                  <div className={`w-12 h-1 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+                  <div className={`w-12 h-1 ${step >= 2 ? 'bg-info' : 'bg-border'}`}></div>
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 2 ? 'bg-info text-white' : 'bg-border'}`}>
                     {step > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
                   </div>
                 </>
               )}
-              <div className={`w-12 h-1 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+              <div className={`w-12 h-1 ${step >= 3 ? 'bg-info' : 'bg-border'}`}></div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 3 ? 'bg-info text-white' : 'bg-border'}`}>
                 {step > 3 ? <CheckCircle className="w-5 h-5" /> : isFirstTimeApplicant ? '3' : '2'}
               </div>
             </div>
@@ -648,7 +648,7 @@ const getJobQuestions = (job: Job) => {
                   <div className="mt-2">
                     {/* Show existing resume option */}
                     {existingResumeUrl && (
-                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="mb-4 p-3 bg-info/10 border border-info/20 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <input
@@ -666,7 +666,7 @@ const getJobQuestions = (job: Job) => {
                                 });
                               }}
                             />
-                            <Label htmlFor="useExisting" className="text-sm font-medium text-blue-800">
+                            <Label htmlFor="useExisting" className="text-sm font-medium text-info">
                               Use existing resume from profile
                             </Label>
                           </div>
@@ -691,19 +691,19 @@ const getJobQuestions = (job: Job) => {
                         </div>
                       )}
                     </div>
-                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 ${useExistingResume && existingResumeUrl ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-surface-2 hover:bg-secondary ${useExistingResume && existingResumeUrl ? 'opacity-50 pointer-events-none' : ''}`}>
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                        <p className="mb-2 text-sm text-gray-500">
+                        <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                        <p className="mb-2 text-sm text-muted-foreground">
                           {applicationData.resumeFile ? (
-                            <span className="font-semibold text-green-600">{applicationData.resumeFile.name}</span>
+                            <span className="font-semibold text-success">{applicationData.resumeFile.name}</span>
                           ) : (
                             <>
                               <span className="font-semibold">Click to upload</span> or drag and drop
                             </>
                           )}
                         </p>
-                        <p className="text-xs text-gray-500">PDF files only (MAX. 10MB). Must contain professional information like experience, education, and skills.</p>
+                        <p className="text-xs text-muted-foreground">PDF files only (MAX. 10MB). Must contain professional information like experience, education, and skills.</p>
                       </div>
                       <input
                         id="resume"
@@ -719,21 +719,21 @@ const getJobQuestions = (job: Job) => {
                   {/* Real-time validation feedback */}
                   {(validatingResume || resumeValidation.type) && (
                     <div className={`mt-2 p-3 rounded-md text-sm ${
-                      validatingResume ? 'bg-blue-50 text-blue-700' :
-                      resumeValidation.type === 'success' ? 'bg-green-50 text-green-700' :
-                      'bg-red-50 text-red-700'
+                      validatingResume ? 'bg-info/10 text-info' :
+                      resumeValidation.type === 'success' ? 'bg-success/10 text-success' :
+                      'bg-destructive/10 text-destructive'
                     }`}>
                       {validatingResume ? (
                         <div className="flex items-center space-x-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-info"></div>
                           <span>Validating resume content...</span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           {resumeValidation.type === 'success' ? (
-                            <span className="text-green-600">✓</span>
+                            <span className="text-success">✓</span>
                           ) : (
-                            <span className="text-red-600">✗</span>
+                            <span className="text-destructive">✗</span>
                           )}
                           <span>{resumeValidation.message}</span>
                         </div>
@@ -744,17 +744,17 @@ const getJobQuestions = (job: Job) => {
 
                 {/* Warning message when resume doesn't match */}
                 {atsAnalysis && atsAnalysis.matchedSkills.length === 0 && (
-                  <Card className="border-red-300 bg-red-50">
+                  <Card className="border-destructive bg-destructive/10">
                     <CardContent className="pt-6">
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0">
-                          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-6 h-6 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-red-800 mb-1">Resume Does Not Meet Job Requirements</h4>
-                          <p className="text-sm text-red-700">
+                          <h4 className="text-sm font-semibold text-destructive mb-1">Resume Does Not Meet Job Requirements</h4>
+                          <p className="text-sm text-destructive">
                             Your resume does not match the required skills and experience for this position. Please update your resume or consider applying for a different role.
                           </p>
                         </div>
@@ -776,7 +776,7 @@ const getJobQuestions = (job: Job) => {
                     required={job.applyFormConfig?.coverLetterRequired}
                   />
                   {job.applyFormConfig?.coverLetterRequired && !applicationData.coverLetter.trim() && (
-                    <p className="text-sm text-red-600 mt-1">Cover Letter is required to proceed.</p>
+                    <p className="text-sm text-destructive mt-1">Cover Letter is required to proceed.</p>
                   )}
                 </div>
               </CardContent>
@@ -879,7 +879,7 @@ const getJobQuestions = (job: Job) => {
               <CardContent className="space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">Personal Information</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div className="bg-surface-2 p-4 rounded-lg space-y-2">
                     <p><strong>Name:</strong> {applicationData.firstName} {applicationData.lastName}</p>
                     <p><strong>Email:</strong> {applicationData.email}</p>
                     <p><strong>Phone:</strong> {applicationData.countryCode} {applicationData.phone}</p>
@@ -889,11 +889,11 @@ const getJobQuestions = (job: Job) => {
 
                 <div>
                   <h4 className="font-semibold mb-2">Additional Questions</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div className="bg-surface-2 p-4 rounded-lg space-y-2">
                     {questions.map((question) => (
                       <div key={question.id}>
                         <p className="text-sm font-medium">{question.question}</p>
-                        <p className="text-sm text-gray-600">{applicationData.answers[question.id]}</p>
+                        <p className="text-sm text-muted-foreground">{applicationData.answers[question.id]}</p>
                       </div>
                     ))}
                   </div>
@@ -902,7 +902,7 @@ const getJobQuestions = (job: Job) => {
                 {applicationData.coverLetter && (
                   <div>
                     <h4 className="font-semibold mb-2">Cover Letter</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-surface-2 p-4 rounded-lg">
                       <p className="text-sm">{applicationData.coverLetter}</p>
                     </div>
                   </div>
@@ -917,7 +917,7 @@ const getJobQuestions = (job: Job) => {
               <Button 
                 onClick={handleSubmit} 
                 disabled={isSubmitting}
-                className="px-8 bg-green-600 hover:bg-green-700"
+                className="px-8 bg-success hover:bg-success/90"
               >
                 {isSubmitting ? "Submitting..." : "Submit Application"}
               </Button>

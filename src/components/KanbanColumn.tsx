@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, PhoneCall, type LucideIcon } from "lucide-react";
+
 import { KanbanCard } from "./KanbanCard";
-import { LucideIcon, PhoneCall, ChevronDown, ChevronRight, ArrowRight } from "lucide-react";
-import { useState } from "react";
-import callService from "@/services/call.service";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import callService from "@/services/call.service";
+import { cn } from "@/lib/utils";
 
 interface Candidate {
   id: string;
@@ -31,7 +33,9 @@ interface KanbanColumnProps {
   onBeforePhoneCall?: (candidate: Candidate, executeCall: () => void) => void;
 }
 
-const stageSteps: Record<string, string> = {
+/* Stage metadata. Accents are design-system tokens rather than raw hex, so the
+   board stays on-palette in both themes. */
+const STAGE_STEP: Record<string, string> = {
   new: "01",
   reviewed: "02",
   shortlisted: "03",
@@ -40,60 +44,76 @@ const stageSteps: Record<string, string> = {
   hired: "06",
 };
 
-const stageDescriptions: Record<string, string> = {
-  new: "Resume uploaded, AI extracts skills & experience",
-  reviewed: "Score /100 · Skills matched · Hire recommendation",
-  shortlisted: "AI calls shortlisted candidates · Basic screening",
-  interview: "Domain knowledge · Problem solving · Full report",
-  offered: "Digital offer · e-Signature · Onboarding tracking",
-  hired: "Candidate onboarded · Welcome aboard",
+const STAGE_DESCRIPTION: Record<string, string> = {
+  new: "Résumé uploaded — AI extracts skills and experience",
+  reviewed: "Scored out of 100, skills matched, recommendation ready",
+  shortlisted: "AI screening call in progress",
+  interview: "Domain knowledge, problem solving, full report",
+  offered: "Digital offer, e-signature, onboarding tracked",
+  hired: "Onboarded — welcome aboard",
 };
 
-const stageAccents: Record<string, string> = {
-  new: "#3b82f6",
-  reviewed: "#8b5cf6",
-  shortlisted: "#06b6d4",
-  interview: "#10b981",
-  offered: "#f59e0b",
-  hired: "#22c55e",
+const STAGE_ACCENT: Record<string, string> = {
+  new: "hsl(var(--brand-indigo))",
+  reviewed: "hsl(var(--brand-violet))",
+  shortlisted: "hsl(var(--brand-cyan))",
+  interview: "hsl(var(--success))",
+  offered: "hsl(var(--warning))",
+  hired: "hsl(var(--success))",
 };
 
-const stageFooter: Record<string, string> = {
-  new: "Application received ✓",
-  reviewed: "Profile under review",
-  shortlisted: "Shortlisted — AI call scheduled",
-  interview: "Technical interview scheduled",
-  offered: "Offer letter sent!",
-  hired: "Welcome aboard 🎉",
-};
-
-export const KanbanColumn = ({ id, title, candidates, color, icon: Icon, actionType, onCandidateClick, onCallCandidate, onBeforePhoneCall }: KanbanColumnProps) => {
+export const KanbanColumn = ({
+  id,
+  title,
+  candidates,
+  icon: Icon,
+  actionType,
+  onCandidateClick,
+  onCallCandidate,
+  onBeforePhoneCall,
+}: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id });
   const [callingCandidateId, setCallingCandidateId] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const { toast } = useToast();
 
-  const accent = stageAccents[id] || "#6366f1";
-  const step = stageSteps[id] || "—";
-  const description = stageDescriptions[id] || "";
-  const footer = stageFooter[id] || "";
+  const accent = STAGE_ACCENT[id] || "hsl(var(--primary))";
+  const step = STAGE_STEP[id] || "—";
+  const description = STAGE_DESCRIPTION[id] || "";
+  const count = candidates?.length ?? 0;
+  const canCall = actionType === "call" || actionType === "ai_phone";
 
   const doCall = async (candidate: Candidate) => {
     if (!candidate.phone) {
-      toast({ title: "No Phone Number", description: "This candidate doesn't have a phone number on file.", variant: "destructive" });
+      toast({
+        title: "No phone number",
+        description: "This candidate doesn't have a phone number on file.",
+        variant: "destructive",
+      });
       return;
     }
     setCallingCandidateId(candidate.id);
     try {
-      await callService.makeCall(candidate.phone, undefined, { candidateName: candidate.name, candidateRole: candidate.role });
-      toast({ title: "Call Initiated", description: `Calling ${candidate.name} at ${candidate.phone}` });
+      await callService.makeCall(candidate.phone, undefined, {
+        candidateName: candidate.name,
+        candidateRole: candidate.role,
+      });
+      toast({ title: "Call initiated", description: `Calling ${candidate.name} at ${candidate.phone}` });
       onCallCandidate?.(candidate);
     } catch (error) {
       const err = error as { response?: { data?: { error?: { code?: string; message?: string } } } };
-      if (err?.response?.data?.error?.code === 'SUBSCRIPTION_REQUIRED') {
-        toast({ title: "Subscription Required", description: err.response?.data?.error?.message || "Please subscribe to use phone screening.", variant: "destructive" });
+      if (err?.response?.data?.error?.code === "SUBSCRIPTION_REQUIRED") {
+        toast({
+          title: "Subscription required",
+          description: err.response?.data?.error?.message || "Please subscribe to use phone screening.",
+          variant: "destructive",
+        });
       } else {
-        toast({ title: "Call Failed", description: "Failed to initiate the call. Please try again.", variant: "destructive" });
+        toast({
+          title: "Call failed",
+          description: "Failed to initiate the call. Please try again.",
+          variant: "destructive",
+        });
       }
     } finally {
       setCallingCandidateId(null);
@@ -110,112 +130,149 @@ export const KanbanColumn = ({ id, title, candidates, color, icon: Icon, actionT
   };
 
   return (
-    <div
-      className={`w-72 flex-shrink-0 rounded-xl border bg-card transition-all duration-200 ${
-        isOver ? "ring-2 ring-primary shadow-lg" : "border-border shadow-sm"
-      }`}
-      style={{ borderTop: `3px solid ${accent}` }}
+    <section
+      aria-label={`${title}, ${count} candidate${count === 1 ? "" : "s"}`}
+      className={cn(
+        // Full width when the board stacks on mobile; a fixed rail on desktop.
+        "flex w-full flex-col rounded-[var(--radius-xl)] border bg-surface-2/50 lg:w-[288px] lg:shrink-0 lg:snap-start",
+        "transition-all duration-200 ease-expo",
+        isOver ? "border-primary/50 bg-primary/4 shadow-glow" : "border-border/70 shadow-xs"
+      )}
     >
-      {/* Header */}
-      <div className="px-4 pt-4 pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold tracking-widest text-muted-foreground">{step}</span>
-          <div className="flex items-center gap-1.5">
-            {(actionType === 'call' || actionType === 'ai_phone') && candidates && candidates.length > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 w-6 p-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const candidateWithPhone = candidates.find(c => c.phone);
-                  if (candidateWithPhone) {
-                    handleCallCandidate(candidateWithPhone, e);
-                  } else {
-                    toast({ title: "No Phone Numbers", description: "No candidates in this stage have phone numbers.", variant: "destructive" });
-                  }
-                }}
-                disabled={!!callingCandidateId}
-              >
-                <PhoneCall className="w-3.5 h-3.5" style={{ color: accent }} />
-              </Button>
-            )}
-            <div
-              className="flex items-center justify-center w-8 h-8 rounded-lg"
-              style={{ background: `${accent}15`, border: `1px solid ${accent}30` }}
+      {/* ── Header ── */}
+      <header className="relative overflow-hidden rounded-t-[var(--radius-xl)] px-3.5 pb-3 pt-3.5">
+        {/* Stage accent bar */}
+        <span aria-hidden className="absolute inset-x-0 top-0 h-[3px]" style={{ background: accent }} />
+
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)]"
+              style={{ background: `color-mix(in srgb, ${accent} 14%, transparent)`, color: accent }}
             >
-              <Icon className="w-4 h-4" style={{ color: accent }} />
+              <Icon className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{step}</p>
+              <h3 className="truncate text-[13px] font-semibold leading-tight text-foreground">{title}</h3>
             </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-0.5">
+            {canCall && count > 0 && (
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    data-compact
+                    className="h-7 w-7"
+                    disabled={!!callingCandidateId}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const withPhone = candidates.find((c) => c.phone);
+                      if (withPhone) {
+                        handleCallCandidate(withPhone, e);
+                      } else {
+                        toast({
+                          title: "No phone numbers",
+                          description: "No candidates in this stage have phone numbers.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    <PhoneCall className="h-3.5 w-3.5" style={{ color: accent }} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Start AI screening call</TooltipContent>
+              </Tooltip>
+            )}
+
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              data-compact
+              className="h-7 w-7"
+              onClick={() => setCollapsed((v) => !v)}
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
+            >
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ease-expo",
+                  collapsed && "-rotate-90"
+                )}
+              />
+            </Button>
           </div>
         </div>
 
-        <h3 className="text-sm font-bold text-foreground leading-tight">{title}</h3>
-        {description && (
-          <p className="text-[11px] text-muted-foreground leading-snug mt-1">{description}</p>
+        {description && !collapsed && (
+          <p className="mt-2 text-[11px] leading-snug text-muted-foreground">{description}</p>
         )}
 
-        <div className="flex items-center gap-1.5 mt-2.5">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
-          <span className="text-[11px] text-muted-foreground font-medium">
-            {candidates?.length || 0} candidate{(candidates?.length || 0) !== 1 ? "s" : ""}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-5 w-5 p-0 ml-auto"
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label={collapsed ? "Expand column" : "Collapse column"}
+        <div className="mt-2.5 flex items-center gap-1.5">
+          <span
+            className="rounded-full px-2 py-0.5 font-mono text-[10px] font-medium tabular-nums"
+            style={{ background: `color-mix(in srgb, ${accent} 12%, transparent)`, color: accent }}
           >
-            {collapsed ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
-          </Button>
+            {count}
+          </span>
+          <span className="text-[11px] text-muted-foreground">
+            candidate{count === 1 ? "" : "s"}
+          </span>
         </div>
-      </div>
+      </header>
 
-      {/* Candidates */}
-      <div className="px-3 pb-3">
-        {!collapsed ? (
+      {/* ── Cards ── */}
+      <div className="flex-1 px-2.5 pb-2.5">
+        {collapsed ? (
           <div
             ref={setNodeRef}
-            className={`min-h-[120px] space-y-2 rounded-lg p-1 transition-colors ${
-              isOver ? "bg-muted/40" : ""
-            }`}
+            className="flex min-h-[44px] items-center justify-center rounded-[var(--radius-md)] border border-dashed border-border/70 text-[11px] text-muted-foreground"
           >
-            <SortableContext items={candidates?.map(c => c.id) || []} strategy={verticalListSortingStrategy}>
-              {candidates?.map((candidate) => (
-                <div key={candidate.id} className="relative group">
-                  <KanbanCard candidate={candidate} accent={accent} onCandidateClick={onCandidateClick} />
-                  {(actionType === 'call' || actionType === 'ai_phone') && candidate.phone && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="absolute top-1.5 right-1.5 h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
-                      onClick={(e) => handleCallCandidate(candidate, e)}
-                      disabled={callingCandidateId === candidate.id}
-                    >
-                      <PhoneCall className="w-3 h-3" style={{ color: accent }} />
-                    </Button>
-                  )}
-                </div>
-              )) || []}
-            </SortableContext>
+            {count} hidden
           </div>
         ) : (
           <div
             ref={setNodeRef}
-            className="min-h-[40px] flex items-center justify-center text-xs text-muted-foreground"
+            className={cn(
+              "min-h-[140px] space-y-2 rounded-[var(--radius-md)] p-0.5 transition-colors duration-200",
+              isOver && "bg-primary/5"
+            )}
           >
-            {candidates?.length || 0} candidate{(candidates?.length || 0) !== 1 ? "s" : ""}
+            <SortableContext items={candidates?.map((c) => c.id) || []} strategy={verticalListSortingStrategy}>
+              {count === 0 ? (
+                <div className="flex min-h-[132px] flex-col items-center justify-center gap-1.5 rounded-[var(--radius-lg)] border border-dashed border-border/70 px-3 text-center">
+                  <Icon className="h-4 w-4 text-muted-foreground/40" />
+                  <p className="text-[11px] text-muted-foreground">No one here yet</p>
+                  <p className="text-[10px] text-muted-foreground/60">Drag a candidate in to advance them</p>
+                </div>
+              ) : (
+                candidates.map((candidate) => (
+                  <div key={candidate.id} className="group/row relative">
+                    <KanbanCard candidate={candidate} accent={accent} onCandidateClick={onCandidateClick} />
+                    {canCall && candidate.phone && (
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        data-compact
+                        className="absolute right-8 top-1 h-6 w-6 opacity-0 transition-opacity group-hover/row:opacity-100 focus-visible:opacity-100 [@media(pointer:coarse)]:opacity-100"
+                        onClick={(e) => handleCallCandidate(candidate, e)}
+                        disabled={callingCandidateId === candidate.id}
+                        aria-label={`Call ${candidate.name}`}
+                      >
+                        <PhoneCall className="h-3 w-3" style={{ color: accent }} />
+                      </Button>
+                    )}
+                  </div>
+                ))
+              )}
+            </SortableContext>
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      {footer && !collapsed && (
-        <div className="mx-3 mb-3 flex items-center gap-1.5 text-[10px] font-medium border rounded-lg px-3 py-2 border-border bg-muted/30 text-muted-foreground">
-          <ArrowRight className="w-3 h-3 flex-shrink-0" />
-          <span className="truncate">{footer}</span>
-        </div>
-      )}
-    </div>
+    </section>
   );
 };

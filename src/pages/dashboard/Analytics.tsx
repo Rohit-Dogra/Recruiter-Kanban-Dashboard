@@ -67,26 +67,52 @@ const DATE_PRESETS: { label: string; value: DatePreset }[] = [
 ];
 
 const FUNNEL_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--chart-2, 220 70% 55%))",
-  "hsl(var(--chart-3, 280 65% 55%))",
-  "hsl(var(--chart-4, 30 80% 55%))",
-  "hsl(var(--chart-5, 150 60% 45%))",
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
 ];
 
+/* Recharts defaults to fixed light-mode greys for axes and grid lines, which
+   disappear on the dark canvas. These props theme them from design tokens. */
+const AXIS_PROPS = {
+  stroke: "hsl(var(--border-strong))",
+  tick: { fill: "hsl(var(--muted-foreground))", fontSize: 11 },
+  tickLine: { stroke: "hsl(var(--border))" },
+} as const;
+
+const GRID_PROPS = {
+  strokeDasharray: "4 4",
+  stroke: "hsl(var(--border))",
+  vertical: false,
+} as const;
+
+const TOOLTIP_PROPS = {
+  cursor: { fill: "hsl(var(--primary) / 0.06)" },
+  contentStyle: {
+    background: "hsl(var(--popover))",
+    border: "1px solid hsl(var(--border))",
+    borderRadius: "var(--radius-md)",
+    boxShadow: "var(--shadow-lg)",
+    fontSize: 12,
+    color: "hsl(var(--popover-foreground))",
+  },
+  labelStyle: { color: "hsl(var(--foreground))", fontWeight: 600, marginBottom: 4 },
+  itemStyle: { color: "hsl(var(--muted-foreground))" },
+} as const;
+
 const PIE_COLORS = [
-  "#3B82F6", // blue
-  "#F59E0B", // amber
-  "#10B981", // emerald
-  "#EF4444", // red
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#06B6D4", // cyan
-  "#F97316", // orange
-  "#14B8A6", // teal
-  "#6366F1", // indigo
-  "#84CC16", // lime
-  "#A855F7", // purple
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+  "hsl(var(--brand-fuchsia))",
+  "hsl(var(--info))",
+  "hsl(var(--warning))",
+  "hsl(var(--brand-indigo))",
+  "hsl(var(--destructive))",
 ];
 
 const Analytics = () => {
@@ -469,10 +495,10 @@ const Analytics = () => {
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={analyticsData.pipelineData} layout="vertical" margin={{ left: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="stage" type="category" width={100} tick={{ fontSize: 11 }} />
-                    <Tooltip />
+                    <CartesianGrid {...GRID_PROPS} />
+                    <XAxis type="number" {...AXIS_PROPS} />
+                    <YAxis dataKey="stage" type="category" width={100} {...AXIS_PROPS} />
+                    <Tooltip {...TOOLTIP_PROPS} />
                     <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -494,9 +520,9 @@ const Analytics = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={320}>
                 <LineChart data={analyticsData.monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <CartesianGrid {...GRID_PROPS} />
+                  <XAxis dataKey="month" {...AXIS_PROPS} />
+                  <YAxis {...AXIS_PROPS} />
                   <Tooltip
                     content={({ active, payload, label }) =>
                       active && payload?.length ? (
@@ -548,7 +574,7 @@ const Analytics = () => {
                     type="monotone"
                     dataKey="applications"
                     name="Applications"
-                    stroke="hsl(var(--muted-foreground))"
+                    stroke="hsl(var(--chart-2))"
                     strokeWidth={2}
                     dot={{ r: 4 }}
                     activeDot={{ r: 6 }}
@@ -575,9 +601,9 @@ const Analytics = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={analyticsData.sourceData} margin={{ bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <CartesianGrid {...GRID_PROPS} />
+                  <XAxis dataKey="name" angle={-20} textAnchor="end" {...AXIS_PROPS} />
+                  <YAxis {...AXIS_PROPS} />
                   <Tooltip
                     content={({ active, payload }) =>
                       active && payload?.[0] ? (
@@ -627,7 +653,7 @@ const Analytics = () => {
                     labelLine={{ strokeWidth: 1 }}
                   >
                     {rejectionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={1} stroke="rgba(255,255,255,0.3)" />
+                      <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={1} stroke="hsl(var(--background))" />
                     ))}
                   </Pie>
                   <Tooltip
@@ -665,7 +691,7 @@ const Analytics = () => {
                       key={item.stage}
                       className={`flex items-center justify-between gap-4 p-2 rounded-lg border ${
                         item.isBottleneck
-                          ? "border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20"
+                          ? "border-warning/20 bg-warning/10/50 dark:border-warning dark:bg-amber-950/20"
                           : "border-border"
                       }`}
                     >
@@ -673,7 +699,7 @@ const Analytics = () => {
                         <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
                         {item.stage}
                         {item.isBottleneck && (
-                          <span title="Potential bottleneck"><AlertCircle className="w-3.5 h-3.5 text-amber-500" /></span>
+                          <span title="Potential bottleneck"><AlertCircle className="w-3.5 h-3.5 text-warning" /></span>
                         )}
                       </span>
                       <Badge variant="secondary">{item.count}</Badge>
@@ -683,9 +709,9 @@ const Analytics = () => {
               </div>
               <ResponsiveContainer width="100%" height={Math.max(220, pipelineWithBottleneck.length * 40)}>
                 <BarChart data={pipelineWithBottleneck} layout="vertical" margin={{ left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="stage" type="category" width={100} tick={{ fontSize: 11 }} />
+                  <CartesianGrid {...GRID_PROPS} />
+                  <XAxis type="number" {...AXIS_PROPS} />
+                  <YAxis dataKey="stage" type="category" width={100} {...AXIS_PROPS} />
                   <Tooltip
                     content={({ active, payload }) =>
                       active && payload?.[0] ? (
@@ -693,7 +719,7 @@ const Analytics = () => {
                           <p className="font-medium">{payload[0].payload.stage}</p>
                           <p className="text-sm">Candidates: {payload[0].value}</p>
                           {payload[0].payload.isBottleneck && (
-                            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                            <p className="text-xs text-warning mt-1 flex items-center gap-1">
                               <AlertCircle className="w-3 h-3 shrink-0" /> Potential bottleneck
                             </p>
                           )}

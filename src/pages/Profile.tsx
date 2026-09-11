@@ -1,26 +1,70 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import companyService, { Company } from '@/services/company.service';
-import { useCompany } from '@/contexts/CompanyContext';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  Heart,
+  ImageUp,
+  Info,
+  MapPin,
+  Users,
+} from "lucide-react";
+
+import companyService, { type Company } from "@/services/company.service";
+import { useCompany } from "@/contexts/CompanyContext";
+import DashboardHeader from "@/components/DashboardHeader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { EASE } from "@/lib/motion";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COMPANY PROFILE
+   Previously a 750-line page of hard-coded inline styles that only rendered
+   correctly in light mode and ignored the app shell. Rebuilt as a three-step
+   form inside the dashboard: same fields, same submit payload, now themable,
+   responsive and keyboard-navigable.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const SECTIONS = [
+  { id: "basic", label: "Basics", icon: Building2, blurb: "Your core company information" },
+  { id: "details", label: "Details", icon: Info, blurb: "Website, founding year and description" },
+  { id: "culture", label: "Culture", icon: Heart, blurb: "Mission, values and what it's like to work here" },
+] as const;
+
+type SectionId = (typeof SECTIONS)[number]["id"];
 
 const Profile = () => {
   const navigate = useNavigate();
   const { refreshCompany } = useCompany();
+
   const [form, setForm] = useState<Company | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState('basic');
+  const [activeSection, setActiveSection] = useState<SectionId>("basic");
 
   useEffect(() => {
     const fetchCompany = async () => {
       try {
         const data = await companyService.getMyCompany();
         setForm(data);
-      } catch (err: any) {
-        setError(err?.response?.data?.error || 'Failed to load company data');
+      } catch (err) {
+        setError(
+          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+            "Failed to load company data"
+        );
       } finally {
         setLoading(false);
       }
@@ -28,13 +72,21 @@ const Profile = () => {
     fetchCompany();
   }, []);
 
+  // Revoke the object URL when the preview changes or the page unmounts.
+  useEffect(() => {
+    return () => {
+      if (logoPreview) URL.revokeObjectURL(logoPreview);
+    };
+  }, [logoPreview]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type, files } = e.target as HTMLInputElement;
-    if (type === 'file' && files && files[0]) {
-      setLogoFile(files[0]);
-      setLogoPreview(URL.createObjectURL(files[0]));
+    const target = e.target as HTMLInputElement;
+    if (target.type === "file" && target.files?.[0]) {
+      setLogoFile(target.files[0]);
+      setLogoPreview(URL.createObjectURL(target.files[0]));
     } else {
-      setForm(prev => prev ? { ...prev, [name]: value } : null);
+      const { name, value } = target;
+      setForm((prev) => (prev ? { ...prev, [name]: value } : null));
     }
   };
 
@@ -45,702 +97,393 @@ const Profile = () => {
     setError(null);
     try {
       const formData = new FormData();
-      formData.append('name', form.name);
-      formData.append('description', form.description);
-      formData.append('industry', form.industry);
-      formData.append('size', form.size);
-      formData.append('location', form.location);
-      if (form.website) formData.append('website', form.website);
-      if (form.founded) formData.append('founded', form.founded);
-      if (form.mission) formData.append('mission', form.mission);
-      if (form.values) formData.append('values', form.values);
-      if (form.culture) formData.append('culture', form.culture);
-      if (logoFile) formData.append('logo', logoFile);
+      formData.append("name", form.name);
+      formData.append("description", form.description);
+      formData.append("industry", form.industry);
+      formData.append("size", form.size);
+      formData.append("location", form.location);
+      if (form.website) formData.append("website", form.website);
+      if (form.founded) formData.append("founded", form.founded);
+      if (form.mission) formData.append("mission", form.mission);
+      if (form.values) formData.append("values", form.values);
+      if (form.culture) formData.append("culture", form.culture);
+      if (logoFile) formData.append("logo", logoFile);
+
       await companyService.upsertCompany(formData);
       await refreshCompany();
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err?.response?.data?.error || 'Failed to update company');
+
+      // Confirm in place before leaving, so the save doesn't feel like a jump-cut.
+      setSaved(true);
+      setTimeout(() => navigate("/dashboard"), 700);
+    } catch (err) {
+      setError(
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+          "Failed to update company"
+      );
     } finally {
       setSaving(false);
     }
   };
 
+  const sectionIndex = SECTIONS.findIndex((s) => s.id === activeSection);
+  const current = SECTIONS[sectionIndex];
+
   if (loading) {
     return (
-      <div style={styles.loadingScreen}>
-        <div style={styles.spinner} />
-        <p style={styles.loadingText}>Loading your company profile...</p>
+      <div className="pb-4">
+        <DashboardHeader title="Company profile" subtitle="Loading your workspace details" />
+        <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+          <Skeleton className="h-72 rounded-[var(--radius-2xl)]" />
+          <Skeleton className="h-96 rounded-[var(--radius-2xl)]" />
+        </div>
       </div>
     );
   }
 
-  const sections = [
-    { id: 'basic', label: 'Basic Info' },
-    { id: 'details', label: 'Details' },
-    { id: 'culture', label: 'Culture & Values' },
-  ];
-
   return (
-    <div style={styles.page}>
-      {/* Left sidebar */}
-      <aside style={styles.sidebar}>
-        <div style={styles.sidebarInner}>
-          {/* Logo area */}
-          <div style={styles.logoArea}>
-            <div style={styles.avatarWrapper}>
-              <div style={styles.avatar}>
-                {(logoPreview || form?.logoUrl) ? (
-                  <img src={logoPreview || form?.logoUrl} alt="Logo" style={styles.avatarImg} />
+    <div className="pb-4">
+      <DashboardHeader
+        title="Company profile"
+        subtitle={current.blurb}
+        action={
+          <Button
+            variant="hero"
+            size="sm"
+            onClick={handleSubmit}
+            loading={saving}
+            loadingText="Saving…"
+            success={saved}
+            successText="Saved"
+            icon={<Check className="h-4 w-4" />}
+          >
+            Save changes
+          </Button>
+        }
+      />
+
+      <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+        {/* ── Identity + section rail ── */}
+        <div className="space-y-4">
+          <Card padding="md" className="text-center">
+            <div className="relative mx-auto w-fit">
+              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-[var(--radius-xl)] bg-gradient-to-br from-primary/18 to-primary/5 ring-1 ring-inset ring-border">
+                {logoPreview || form?.logoUrl ? (
+                  <img src={logoPreview || form?.logoUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <span style={styles.avatarPlaceholder}>
-                    {form?.name?.charAt(0) || 'C'}
+                  <span className="font-display text-3xl font-semibold text-primary">
+                    {form?.name?.charAt(0) || "C"}
                   </span>
                 )}
               </div>
-              <label style={styles.uploadBadge} htmlFor="logo-upload" title="Change logo">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                <input
-                  id="logo-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleChange}
-                  style={{ display: 'none' }}
-                />
+
+              <label
+                htmlFor="logo-upload"
+                title="Change logo"
+                className="absolute -bottom-1 -right-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gradient-primary text-white shadow-glow transition-transform duration-200 hover:scale-110"
+              >
+                <ImageUp className="h-3.5 w-3.5" />
+                <span className="sr-only">Upload a company logo</span>
+                <input id="logo-upload" type="file" accept="image/*" onChange={handleChange} className="sr-only" />
               </label>
             </div>
-            <h3 style={styles.companyNameSidebar}>{form?.name || 'Your Company'}</h3>
-            <span style={styles.industryBadge}>{form?.industry || 'Industry'}</span>
-          </div>
 
-          {/* Nav */}
-          <nav style={styles.nav}>
-            {sections.map(s => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setActiveSection(s.id)}
-                style={{
-                  ...styles.navItem,
-                  ...(activeSection === s.id ? styles.navItemActive : {}),
-                }}
-              >
-                <span style={styles.navIcon}>{s.icon}</span>
-                {s.label}
-              </button>
-            ))}
+            <h2 className="mt-4 truncate font-display text-base font-semibold text-foreground">
+              {form?.name || "Your company"}
+            </h2>
+            <p className="mt-1 inline-block rounded-full bg-secondary px-2.5 py-0.5 text-[11px] text-muted-foreground">
+              {form?.industry || "Industry"}
+            </p>
+
+            <dl className="mt-5 space-y-0 divide-y divide-border/70 border-t border-border/70 text-left">
+              {[
+                { icon: MapPin, label: "Location", value: form?.location },
+                { icon: Users, label: "Size", value: form?.size },
+                { icon: Building2, label: "Founded", value: form?.founded },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-3 py-2.5">
+                  <dt className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    <row.icon className="h-3 w-3" />
+                    {row.label}
+                  </dt>
+                  <dd className="truncate text-[13px] font-medium text-foreground">{row.value || "—"}</dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
+
+          <nav aria-label="Profile sections" className="no-scrollbar flex gap-2 overflow-x-auto lg:flex-col">
+            {SECTIONS.map((s, i) => {
+              const active = s.id === activeSection;
+              const complete = i < sectionIndex;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setActiveSection(s.id)}
+                  aria-current={active}
+                  className={cn(
+                    "group relative flex w-full min-w-[160px] items-center gap-3 rounded-[var(--radius-lg)] border p-3 text-left transition-all duration-300 ease-expo",
+                    active
+                      ? "border-primary/30 bg-surface shadow-md"
+                      : "border-border/60 bg-surface-2/50 hover:border-border-strong hover:bg-surface-2"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] transition-colors",
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : complete
+                          ? "bg-success/12 text-success"
+                          : "bg-secondary text-muted-foreground"
+                    )}
+                  >
+                    {complete ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <s.icon className="h-4 w-4" />}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      Step {i + 1}
+                    </span>
+                    <span
+                      className={cn(
+                        "block truncate text-[13px] font-medium",
+                        active ? "text-foreground" : "text-muted-foreground"
+                      )}
+                    >
+                      {s.label}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
           </nav>
-
-          {/* Quick stats */}
-          <div style={styles.statsBox}>
-            <div style={styles.statItem}>
-              <span style={styles.statLabel}>Location</span>
-              <span style={styles.statValue}>{form?.location || '—'}</span>
-            </div>
-            <div style={styles.statDivider} />
-            <div style={styles.statItem}>
-              <span style={styles.statLabel}>Size</span>
-              <span style={styles.statValue}>{form?.size || '—'}</span>
-            </div>
-            <div style={styles.statDivider} />
-            <div style={styles.statItem}>
-              <span style={styles.statLabel}>Founded</span>
-              <span style={styles.statValue}>{form?.founded || '—'}</span>
-            </div>
-          </div>
         </div>
-      </aside>
 
-      {/* Main content */}
-      <main style={styles.main}>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formHeader}>
-            <div>
-              <h1 style={styles.pageTitle}>Company Profile</h1>
-              <p style={styles.pageSubtitle}>
-                {activeSection === 'basic' && 'Update your core company information'}
-                {activeSection === 'details' && 'Add website, founding year and description'}
-                {activeSection === 'culture' && 'Share your mission, values and culture'}
-              </p>
-            </div>
-            <div style={styles.headerActions}>
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard')}
-                style={styles.cancelBtn}
-              >
-                Cancel
-              </button>
-              <button type="submit" disabled={saving} style={styles.saveBtn}>
-                {saving ? (
-                  <>
-                    <span style={styles.btnSpinner} />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Save Changes
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <div style={styles.errorBanner}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              {error}
-            </div>
-          )}
-
-          {/* Section: Basic Info */}
-          {activeSection === 'basic' && (
-            <div style={styles.section}>
-              <div style={styles.grid2}>
-                <Field label="Company Name" required>
-                  <input
-                    name="name"
-                    value={form?.name || ''}
-                    onChange={handleChange}
-                    required
-                    placeholder="Acme Corp"
-                    style={styles.input}
-                  />
-                </Field>
-                <Field label="Industry" required>
-                  <input
-                    name="industry"
-                    value={form?.industry || ''}
-                    onChange={handleChange}
-                    required
-                    placeholder="Technology"
-                    style={styles.input}
-                  />
-                </Field>
-                <Field label="Company Size" required>
-                  <input
-                    name="size"
-                    value={form?.size || ''}
-                    onChange={handleChange}
-                    required
-                    placeholder="50–200 employees"
-                    style={styles.input}
-                  />
-                </Field>
-                <Field label="Location" required>
-                  <input
-                    name="location"
-                    value={form?.location || ''}
-                    onChange={handleChange}
-                    required
-                    placeholder="San Francisco, CA"
-                    style={styles.input}
-                  />
-                </Field>
-              </div>
-            </div>
-          )}
-
-          {/* Section: Details */}
-          {activeSection === 'details' && (
-            <div style={styles.section}>
-              <div style={styles.grid2}>
-                <Field label="Website">
-                  <input
-                    name="website"
-                    value={form?.website || ''}
-                    onChange={handleChange}
-                    placeholder="https://yourcompany.com"
-                    style={styles.input}
-                  />
-                </Field>
-                <Field label="Founded Year">
-                  <input
-                    name="founded"
-                    value={form?.founded || ''}
-                    onChange={handleChange}
-                    placeholder="2018"
-                    style={styles.input}
-                  />
-                </Field>
-              </div>
-              <Field label="Description" required hint="Describe what your company does">
-                <textarea
-                  name="description"
-                  value={form?.description || ''}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  placeholder="We build tools that help teams collaborate..."
-                  style={styles.textarea}
-                />
-              </Field>
-            </div>
-          )}
-
-          {/* Section: Culture */}
-          {activeSection === 'culture' && (
-            <div style={styles.section}>
-              <Field label="Mission" hint="What drives your company forward?">
-                <textarea
-                  name="mission"
-                  value={form?.mission || ''}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Our mission is to..."
-                  style={styles.textarea}
-                />
-              </Field>
-              <Field label="Core Values" hint="What principles guide your team?">
-                <textarea
-                  name="values"
-                  value={form?.values || ''}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Integrity, Innovation, Collaboration..."
-                  style={styles.textarea}
-                />
-              </Field>
-              <Field label="Culture" hint="What's it like to work here?">
-                <textarea
-                  name="culture"
-                  value={form?.culture || ''}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="We foster an environment where..."
-                  style={styles.textarea}
-                />
-              </Field>
-            </div>
-          )}
-
-          {/* Section navigation */}
-          <div style={styles.sectionNav}>
-            {sections.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setActiveSection(s.id)}
-                style={{
-                  ...styles.sectionDot,
-                  ...(activeSection === s.id ? styles.sectionDotActive : {}),
-                }}
-              />
-            ))}
-            <div style={styles.sectionNavActions}>
-              {activeSection !== 'basic' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const idx = sections.findIndex(s => s.id === activeSection);
-                    setActiveSection(sections[idx - 1].id);
-                  }}
-                  style={styles.prevBtn}
+        {/* ── Form ── */}
+        <Card className="min-w-0">
+          <CardContent className="p-5 sm:p-7">
+            <form onSubmit={handleSubmit} noValidate>
+              {error && (
+                <div
+                  role="alert"
+                  className="mb-5 flex items-start gap-2.5 rounded-[var(--radius-md)] border border-destructive/25 bg-destructive/8 p-3.5 text-[13px] text-destructive"
                 >
-                  ← Previous
-                </button>
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  {error}
+                </div>
               )}
-              {activeSection !== 'culture' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const idx = sections.findIndex(s => s.id === activeSection);
-                    setActiveSection(sections[idx + 1].id);
-                  }}
-                  style={styles.nextBtn}
+
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeSection}
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -12 }}
+                  transition={{ duration: 0.26, ease: EASE.expo }}
+                  className="space-y-5"
                 >
-                  Next →
-                </button>
-              )}
-            </div>
-          </div>
-        </form>
-      </main>
+                  {activeSection === "basic" && (
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <Field label="Company name" htmlFor="name" required>
+                        <Input
+                          id="name"
+                          name="name"
+                          value={form?.name || ""}
+                          onChange={handleChange}
+                          required
+                          placeholder="Acme Corp"
+                        />
+                      </Field>
+                      <Field label="Industry" htmlFor="industry" required>
+                        <Input
+                          id="industry"
+                          name="industry"
+                          value={form?.industry || ""}
+                          onChange={handleChange}
+                          required
+                          placeholder="Technology"
+                        />
+                      </Field>
+                      <Field label="Company size" htmlFor="size" required>
+                        <Input
+                          id="size"
+                          name="size"
+                          value={form?.size || ""}
+                          onChange={handleChange}
+                          required
+                          placeholder="50–200 employees"
+                        />
+                      </Field>
+                      <Field label="Location" htmlFor="location" required>
+                        <Input
+                          id="location"
+                          name="location"
+                          value={form?.location || ""}
+                          onChange={handleChange}
+                          required
+                          placeholder="San Francisco, CA"
+                        />
+                      </Field>
+                    </div>
+                  )}
+
+                  {activeSection === "details" && (
+                    <>
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <Field label="Website" htmlFor="website">
+                          <Input
+                            id="website"
+                            name="website"
+                            value={form?.website || ""}
+                            onChange={handleChange}
+                            placeholder="https://yourcompany.com"
+                          />
+                        </Field>
+                        <Field label="Founded" htmlFor="founded">
+                          <Input
+                            id="founded"
+                            name="founded"
+                            value={form?.founded || ""}
+                            onChange={handleChange}
+                            placeholder="2018"
+                          />
+                        </Field>
+                      </div>
+                      <Field
+                        label="Description"
+                        htmlFor="description"
+                        required
+                        hint="This appears on your public careers page."
+                      >
+                        <Textarea
+                          id="description"
+                          name="description"
+                          value={form?.description || ""}
+                          onChange={handleChange}
+                          required
+                          rows={5}
+                          placeholder="We build tools that help teams collaborate…"
+                        />
+                      </Field>
+                    </>
+                  )}
+
+                  {activeSection === "culture" && (
+                    <>
+                      <Field label="Mission" htmlFor="mission" hint="What drives your company forward?">
+                        <Textarea
+                          id="mission"
+                          name="mission"
+                          value={form?.mission || ""}
+                          onChange={handleChange}
+                          rows={4}
+                          placeholder="Our mission is to…"
+                        />
+                      </Field>
+                      <Field label="Core values" htmlFor="values" hint="What principles guide your team?">
+                        <Textarea
+                          id="values"
+                          name="values"
+                          value={form?.values || ""}
+                          onChange={handleChange}
+                          rows={4}
+                          placeholder="Integrity, innovation, collaboration…"
+                        />
+                      </Field>
+                      <Field label="Culture" htmlFor="culture" hint="What's it like to work here?">
+                        <Textarea
+                          id="culture"
+                          name="culture"
+                          value={form?.culture || ""}
+                          onChange={handleChange}
+                          rows={4}
+                          placeholder="We foster an environment where…"
+                        />
+                      </Field>
+                    </>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* ── Step navigation ── */}
+              <div className="mt-7 flex items-center justify-between gap-3 border-t border-border/70 pt-5">
+                <div className="flex gap-1.5" aria-hidden>
+                  {SECTIONS.map((s, i) => (
+                    <span
+                      key={s.id}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-400 ease-expo",
+                        i === sectionIndex ? "w-6 bg-primary" : "w-1.5 bg-border-strong"
+                      )}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  {sectionIndex > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveSection(SECTIONS[sectionIndex - 1].id)}
+                      icon={<ArrowLeft className="h-3.5 w-3.5" />}
+                    >
+                      Back
+                    </Button>
+                  )}
+                  {sectionIndex < SECTIONS.length - 1 ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setActiveSection(SECTIONS[sectionIndex + 1].id)}
+                      iconRight={<ArrowRight className="h-3.5 w-3.5" />}
+                    >
+                      Next
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="hero"
+                      size="sm"
+                      loading={saving}
+                      loadingText="Saving…"
+                      success={saved}
+                      successText="Saved"
+                    >
+                      Save changes
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
 
+/** Label + hint + control, with the label correctly bound to its input. */
 const Field = ({
   label,
+  htmlFor,
   required,
   hint,
   children,
 }: {
   label: string;
+  htmlFor: string;
   required?: boolean;
   hint?: string;
   children: React.ReactNode;
 }) => (
-  <div style={styles.field}>
-    <label style={styles.fieldLabel}>
+  <div className="space-y-1.5">
+    <Label htmlFor={htmlFor} required={required}>
       {label}
-      {required && <span style={styles.required}>*</span>}
-    </label>
-    {hint && <p style={styles.fieldHint}>{hint}</p>}
+    </Label>
+    {hint && <p className="text-[11px] leading-relaxed text-muted-foreground">{hint}</p>}
     {children}
   </div>
 );
-
-const styles: Record<string, React.CSSProperties> = {
-  page: {
-    display: 'flex',
-    minHeight: '100vh',
-    background: '#f7f8fa',
-    fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-  },
-  sidebar: {
-    width: 260,
-    minHeight: '100vh',
-    background: '#fff',
-    borderRight: '1px solid #e8eaed',
-    flexShrink: 0,
-    position: 'sticky' as any,
-    top: 0,
-    alignSelf: 'flex-start',
-  },
-  sidebarInner: {
-    padding: '32px 20px',
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 28,
-  },
-  logoArea: {
-    display: 'flex',
-    flexDirection: 'column' as any,
-    alignItems: 'center',
-    gap: 10,
-    paddingBottom: 24,
-    borderBottom: '1px solid #f0f1f3',
-  },
-  avatarWrapper: {
-    position: 'relative' as any,
-  },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 16,
-    background: 'linear-gradient(135deg, #e8f0fe 0%, #d2e3fc 100%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    border: '2px solid #e8eaed',
-  },
-  avatarImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover' as any,
-  },
-  avatarPlaceholder: {
-    fontSize: 28,
-    fontWeight: 700,
-    color: '#4285f4',
-  },
-  uploadBadge: {
-    position: 'absolute' as any,
-    bottom: -6,
-    right: -6,
-    width: 24,
-    height: 24,
-    borderRadius: 8,
-    background: '#4285f4',
-    color: '#fff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    border: '2px solid #fff',
-  },
-  companyNameSidebar: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: '#1a1a2e',
-    margin: 0,
-    textAlign: 'center' as any,
-  },
-  industryBadge: {
-    fontSize: 11,
-    fontWeight: 500,
-    color: '#4285f4',
-    background: '#e8f0fe',
-    padding: '3px 10px',
-    borderRadius: 20,
-  },
-  nav: {
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 4,
-  },
-  navItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '10px 14px',
-    borderRadius: 10,
-    border: 'none',
-    background: 'transparent',
-    fontSize: 13.5,
-    fontWeight: 500,
-    color: '#666',
-    cursor: 'pointer',
-    textAlign: 'left' as any,
-    transition: 'all 0.15s',
-  },
-  navItemActive: {
-    background: '#e8f0fe',
-    color: '#1967d2',
-    fontWeight: 600,
-  },
-  navIcon: {
-    fontSize: 16,
-  },
-  statsBox: {
-    background: '#f7f8fa',
-    borderRadius: 12,
-    padding: '14px 16px',
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 0,
-  },
-  statItem: {
-    padding: '8px 0',
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 2,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: '#999',
-    fontWeight: 500,
-    textTransform: 'uppercase' as any,
-    letterSpacing: '0.05em',
-  },
-  statValue: {
-    fontSize: 13,
-    color: '#333',
-    fontWeight: 600,
-  },
-  statDivider: {
-    height: 1,
-    background: '#e8eaed',
-  },
-  main: {
-    flex: 1,
-    padding: '40px 48px',
-    maxWidth: 820,
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 28,
-  },
-  formHeader: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    paddingBottom: 24,
-    borderBottom: '1px solid #e8eaed',
-  },
-  pageTitle: {
-    fontSize: 26,
-    fontWeight: 700,
-    color: '#1a1a2e',
-    margin: 0,
-    marginBottom: 6,
-  },
-  pageSubtitle: {
-    fontSize: 14,
-    color: '#888',
-    margin: 0,
-  },
-  headerActions: {
-    display: 'flex',
-    gap: 10,
-    alignItems: 'center',
-  },
-  cancelBtn: {
-    padding: '9px 18px',
-    borderRadius: 10,
-    border: '1px solid #e0e0e0',
-    background: '#fff',
-    fontSize: 13.5,
-    fontWeight: 500,
-    color: '#555',
-    cursor: 'pointer',
-  },
-  saveBtn: {
-    padding: '9px 20px',
-    borderRadius: 10,
-    border: 'none',
-    background: 'linear-gradient(135deg, #4285f4, #1967d2)',
-    color: '#fff',
-    fontSize: 13.5,
-    fontWeight: 600,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 7,
-    boxShadow: '0 2px 8px rgba(66,133,244,0.3)',
-  },
-  btnSpinner: {
-    width: 12,
-    height: 12,
-    border: '2px solid rgba(255,255,255,0.3)',
-    borderTopColor: '#fff',
-    borderRadius: '50%',
-    display: 'inline-block',
-    animation: 'spin 0.7s linear infinite',
-  },
-  errorBanner: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '12px 16px',
-    background: '#fef2f2',
-    border: '1px solid #fecaca',
-    borderRadius: 10,
-    fontSize: 13.5,
-    color: '#dc2626',
-    fontWeight: 500,
-  },
-  section: {
-    background: '#fff',
-    borderRadius: 16,
-    padding: '28px 32px',
-    border: '1px solid #e8eaed',
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 20,
-  },
-  grid2: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 20,
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column' as any,
-    gap: 5,
-  },
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#333',
-  },
-  required: {
-    color: '#dc2626',
-    marginLeft: 3,
-  },
-  fieldHint: {
-    fontSize: 12,
-    color: '#999',
-    margin: 0,
-  },
-  input: {
-    padding: '10px 14px',
-    borderRadius: 10,
-    border: '1.5px solid #e0e0e0',
-    fontSize: 14,
-    color: '#1a1a2e',
-    background: '#fafafa',
-    outline: 'none',
-    transition: 'border-color 0.15s',
-    width: '100%',
-    boxSizing: 'border-box' as any,
-  },
-  textarea: {
-    padding: '10px 14px',
-    borderRadius: 10,
-    border: '1.5px solid #e0e0e0',
-    fontSize: 14,
-    color: '#1a1a2e',
-    background: '#fafafa',
-    outline: 'none',
-    resize: 'vertical' as any,
-    fontFamily: 'inherit',
-    width: '100%',
-    boxSizing: 'border-box' as any,
-    transition: 'border-color 0.15s',
-  },
-  sectionNav: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    paddingTop: 4,
-  },
-  sectionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
-    background: '#d1d5db',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-    transition: 'all 0.2s',
-  },
-  sectionDotActive: {
-    background: '#4285f4',
-    width: 24,
-    borderRadius: 4,
-  },
-  sectionNavActions: {
-    marginLeft: 'auto',
-    display: 'flex',
-    gap: 8,
-  },
-  prevBtn: {
-    padding: '8px 16px',
-    borderRadius: 8,
-    border: '1px solid #e0e0e0',
-    background: '#fff',
-    fontSize: 13,
-    color: '#555',
-    cursor: 'pointer',
-    fontWeight: 500,
-  },
-  nextBtn: {
-    padding: '8px 16px',
-    borderRadius: 8,
-    border: 'none',
-    background: '#4285f4',
-    color: '#fff',
-    fontSize: 13,
-    cursor: 'pointer',
-    fontWeight: 600,
-  },
-  loadingScreen: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column' as any,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-    background: '#f7f8fa',
-  },
-  spinner: {
-    width: 36,
-    height: 36,
-    border: '3px solid #e0e0e0',
-    borderTopColor: '#4285f4',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
-  },
-  loadingText: {
-    fontSize: 14,
-    color: '#888',
-    margin: 0,
-  },
-};
 
 export default Profile;

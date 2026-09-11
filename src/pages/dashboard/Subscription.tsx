@@ -37,32 +37,32 @@ const planConfig: Record<string, {
     icon: Star,
     gradient: "from-zinc-400 via-zinc-500 to-zinc-600",
     glowColor: "rgba(161,161,170,0.12)",
-    borderColor: "border-zinc-500/30",
-    badgeBg: "bg-zinc-500/10 text-zinc-400 border-zinc-500/25",
+    borderColor: "border-border-strong/30",
+    badgeBg: "bg-muted-foreground/10 text-muted-foreground border-border-strong/25",
     tagline: "Get started with a free trial",
   },
   silver: {
     icon: Star,
-    gradient: "from-sky-400 via-blue-500 to-cyan-500",
+    gradient: "from-info via-info to-brand-cyan",
     glowColor: "rgba(59,130,246,0.18)",
-    borderColor: "border-blue-500/30",
-    badgeBg: "bg-blue-500/10 text-blue-400 border-blue-500/25",
+    borderColor: "border-info/30",
+    badgeBg: "bg-info/10 text-info border-info/25",
     tagline: "Perfect for small teams getting started",
   },
   gold: {
     icon: Crown,
-    gradient: "from-violet-500 via-purple-500 to-fuchsia-500",
+    gradient: "from-primary via-primary to-primary",
     glowColor: "rgba(139,92,246,0.22)",
-    borderColor: "border-violet-500/40",
-    badgeBg: "bg-violet-500/10 text-violet-400 border-violet-500/25",
+    borderColor: "border-primary/40",
+    badgeBg: "bg-primary/10 text-primary border-primary/25",
     tagline: "Most popular for growing companies",
   },
   diamond: {
     icon: Zap,
-    gradient: "from-amber-400 via-orange-500 to-rose-500",
+    gradient: "from-warning via-warning to-destructive",
     glowColor: "rgba(245,158,11,0.18)",
-    borderColor: "border-amber-500/30",
-    badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/25",
+    borderColor: "border-warning/30",
+    badgeBg: "bg-warning/10 text-warning border-warning/25",
     tagline: "Enterprise-grade for large organizations",
   },
 };
@@ -70,7 +70,7 @@ const planConfig: Record<string, {
 /* ── Feature comparison data ────────────────────────────────── */
 const FEATURE_SECTIONS = [
   {
-    section: "AI Phone Screening", icon: Phone, color: "text-blue-400",
+    section: "AI Phone Screening", icon: Phone, color: "text-info",
     rows: [
       { label: "Phone Screenings / month", free: "2 (trial)", silver: "10", gold: "30", diamond: "100" },
       { label: "AI Call Report", free: true, silver: true, gold: true, diamond: true },
@@ -79,7 +79,7 @@ const FEATURE_SECTIONS = [
     ],
   },
   {
-    section: "AI Technical Interview", icon: Video, color: "text-indigo-400",
+    section: "AI Technical Interview", icon: Video, color: "text-primary",
     rows: [
       { label: "Technical Interviews / month", free: "1 (trial)", silver: "5", gold: "15", diamond: "50" },
       { label: "Video Interview (Avatar AI)", free: false, silver: false, gold: true, diamond: true },
@@ -90,7 +90,7 @@ const FEATURE_SECTIONS = [
     ],
   },
   {
-    section: "Job Management", icon: FileText, color: "text-cyan-400",
+    section: "Job Management", icon: FileText, color: "text-brand-cyan",
     rows: [
       { label: "Active Job Postings", free: "1 Job", silver: "3 Jobs", gold: "15 Jobs", diamond: "Unlimited" },
       { label: "AI Job Description Generator", free: true, silver: true, gold: true, diamond: true },
@@ -99,7 +99,7 @@ const FEATURE_SECTIONS = [
     ],
   },
   {
-    section: "Candidate Pipeline", icon: UserCheck, color: "text-emerald-400",
+    section: "Candidate Pipeline", icon: UserCheck, color: "text-success",
     rows: [
       { label: "ATS Resume Score", free: true, silver: true, gold: true, diamond: true },
       { label: "Resume Parsing", free: true, silver: true, gold: true, diamond: true },
@@ -108,14 +108,14 @@ const FEATURE_SECTIONS = [
     ],
   },
   {
-    section: "Team & Collaboration", icon: Users, color: "text-purple-400",
+    section: "Team & Collaboration", icon: Users, color: "text-primary",
     rows: [
       { label: "Team Members", free: "1", silver: "3", gold: "5", diamond: "10" },
       { label: "Role-based Access Control", free: false, silver: false, gold: true, diamond: true },
     ],
   },
   {
-    section: "Analytics & Reports", icon: BarChart3, color: "text-amber-400",
+    section: "Analytics & Reports", icon: BarChart3, color: "text-warning",
     rows: [
       { label: "Basic Dashboard Analytics", free: true, silver: true, gold: true, diamond: true },
       { label: "Hiring Funnel Report", free: false, silver: false, gold: true, diamond: true },
@@ -123,7 +123,7 @@ const FEATURE_SECTIONS = [
     ],
   },
   {
-    section: "Support", icon: Headphones, color: "text-zinc-400",
+    section: "Support", icon: Headphones, color: "text-muted-foreground",
     rows: [
       { label: "Email Support", free: true, silver: true, gold: true, diamond: true },
       { label: "Priority Support", free: false, silver: false, gold: true, diamond: true },
@@ -135,8 +135,8 @@ const FEATURE_SECTIONS = [
 
 /* ── Cell renderer ──────────────────────────────────────────── */
 const Cell = ({ value }: { value: boolean | string }) => {
-  if (value === true) return <div className="flex justify-center"><div className="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center"><Check className="w-3 h-3 text-emerald-400" /></div></div>;
-  if (value === false) return <div className="flex justify-center"><div className="w-5 h-5 rounded-full bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center"><X className="w-3 h-3 text-zinc-600" /></div></div>;
+  if (value === true) return <div className="flex justify-center"><div className="w-5 h-5 rounded-full bg-success/15 border border-success/30 flex items-center justify-center"><Check className="w-3 h-3 text-success" /></div></div>;
+  if (value === false) return <div className="flex justify-center"><div className="w-5 h-5 rounded-full bg-surface-3/50 border border-border/50 flex items-center justify-center"><X className="w-3 h-3 text-muted-foreground" /></div></div>;
   return <span className="text-xs font-bold text-foreground block text-center">{value}</span>;
 };
 
@@ -249,7 +249,7 @@ export default function Subscription() {
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-4 text-foreground" style={{ fontFamily: "'Syne', sans-serif", letterSpacing: "-0.02em" }}>
             Choose Your{" "}
-            <span className="bg-gradient-to-r from-primary via-violet-500 to-fuchsia-500 bg-clip-text text-transparent">Perfect Plan</span>
+            <span className="bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">Perfect Plan</span>
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto text-base leading-relaxed">
             Transform hiring with AI Phone Screening and Technical Interviews. Pick the plan that fits your team's growth.
@@ -328,8 +328,8 @@ export default function Subscription() {
                       <ul className="space-y-2 mb-6">
                         {(plan.features || []).map((feature, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-foreground/80">
-                            <div className="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-                              <Check className="w-2.5 h-2.5 text-emerald-400" />
+                            <div className="w-4 h-4 rounded-full bg-success/15 border border-success/30 flex items-center justify-center flex-shrink-0">
+                              <Check className="w-2.5 h-2.5 text-success" />
                             </div>
                             {feature}
                           </li>
@@ -397,7 +397,7 @@ export default function Subscription() {
                     const names: Record<string, string> = { free: "Free", silver: "Silver", gold: "Gold", diamond: "Diamond" };
                     const isCurrent = currentPlanSlug === slug;
                     return (
-                      <div key={slug} className={`px-2 py-3 text-center ${slug === "gold" ? "bg-violet-500/6" : ""} ${isCurrent ? "bg-primary/5" : ""}`}>
+                      <div key={slug} className={`px-2 py-3 text-center ${slug === "gold" ? "bg-primary/6" : ""} ${isCurrent ? "bg-primary/5" : ""}`}>
                         <div className={`inline-flex p-1.5 rounded-lg bg-gradient-to-br ${cfg.gradient} text-white mb-1 shadow-sm`}>
                           <Icon className="w-3 h-3" />
                         </div>
@@ -426,7 +426,7 @@ export default function Subscription() {
                           </div>
                           <div className="flex items-center justify-center px-2 py-3"><Cell value={row.free} /></div>
                           <div className="flex items-center justify-center px-2 py-3"><Cell value={row.silver} /></div>
-                          <div className="flex items-center justify-center px-2 py-3 bg-violet-500/4"><Cell value={row.gold} /></div>
+                          <div className="flex items-center justify-center px-2 py-3 bg-primary/4"><Cell value={row.gold} /></div>
                           <div className="flex items-center justify-center px-2 py-3"><Cell value={row.diamond} /></div>
                         </div>
                       ))}
@@ -437,8 +437,8 @@ export default function Subscription() {
 
               <div className="flex items-center justify-center gap-6 mt-4">
                 {[
-                  { icon: <div className="w-4 h-4 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-emerald-400" /></div>, label: "Included" },
-                  { icon: <div className="w-4 h-4 rounded-full bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center"><X className="w-2.5 h-2.5 text-zinc-600" /></div>, label: "Not included" },
+                  { icon: <div className="w-4 h-4 rounded-full bg-success/15 border border-success/30 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-success" /></div>, label: "Included" },
+                  { icon: <div className="w-4 h-4 rounded-full bg-surface-3/50 border border-border/50 flex items-center justify-center"><X className="w-2.5 h-2.5 text-muted-foreground" /></div>, label: "Not included" },
                   { icon: <span className="text-xs font-bold text-foreground">10</span>, label: "Plan limit" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">

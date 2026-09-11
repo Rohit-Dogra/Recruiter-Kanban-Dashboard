@@ -1,14 +1,37 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { AnimatePresence, motion } from "framer-motion";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  UserRound,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Building, User, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import unifiedAuthService from "@/services/unified-auth.service";
 import AuthLayout from "@/layouts/AuthLayout";
+import { cn } from "@/lib/utils";
+import { EASE } from "@/lib/motion";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SIGN UP
+   Same two-step flow and the same submitted payload as before — the change is
+   in how it's presented: a real progress rail, account type as a pair of
+   choice cards rather than a toggle, and live password feedback that explains
+   what's still missing instead of only colouring a bar.
+   ══════════════════════════════════════════════════════════════════════════ */
 
 type PasswordStrength = "weak" | "medium" | "strong" | "very strong";
 
@@ -26,19 +49,41 @@ function getPasswordStrength(pw: string): { label: PasswordStrength; score: numb
   return { label: "very strong", score: 100 };
 }
 
-const strengthColors: Record<PasswordStrength, string> = {
-  weak: "bg-destructive", medium: "bg-warning", strong: "bg-info", "very strong": "bg-success",
-};
-const strengthTextColors: Record<PasswordStrength, string> = {
-  weak: "text-destructive", medium: "text-warning", strong: "text-info", "very strong": "text-success",
+const STRENGTH_BAR: Record<PasswordStrength, string> = {
+  weak: "bg-destructive",
+  medium: "bg-warning",
+  strong: "bg-info",
+  "very strong": "bg-success",
 };
 
-const passwordRules = [
-  { test: (p: string) => p.length >= 8, label: "At least 8 characters" },
-  { test: (p: string) => /[A-Z]/.test(p), label: "One uppercase letter" },
-  { test: (p: string) => /[a-z]/.test(p), label: "One lowercase letter" },
-  { test: (p: string) => /\d/.test(p), label: "One number" },
-  { test: (p: string) => /[^a-zA-Z0-9]/.test(p), label: "One special character" },
+const STRENGTH_TEXT: Record<PasswordStrength, string> = {
+  weak: "text-destructive",
+  medium: "text-warning",
+  strong: "text-info",
+  "very strong": "text-success",
+};
+
+const PASSWORD_RULES = [
+  { test: (p: string) => p.length >= 8, label: "8+ characters" },
+  { test: (p: string) => /[A-Z]/.test(p), label: "Uppercase" },
+  { test: (p: string) => /[a-z]/.test(p), label: "Lowercase" },
+  { test: (p: string) => /\d/.test(p), label: "Number" },
+  { test: (p: string) => /[^a-zA-Z0-9]/.test(p), label: "Symbol" },
+];
+
+const ACCOUNT_TYPES = [
+  {
+    key: "company" as const,
+    title: "I'm hiring",
+    description: "Post roles, screen candidates, run interviews.",
+    icon: Building2,
+  },
+  {
+    key: "candidate" as const,
+    title: "I'm job hunting",
+    description: "Build a profile, apply once, get matched.",
+    icon: UserRound,
+  },
 ];
 
 const UnifiedSignup = () => {
@@ -46,37 +91,9 @@ const UnifiedSignup = () => {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
-  const handleGoogleSignup = async (credentialResponse: CredentialResponse) => {
-    if (!credentialResponse.credential) {
-      toast({ title: "Authentication failed", description: "No credential received from Google", variant: "destructive" });
-      return;
-    }
-    setIsGoogleLoading(true);
-    try {
-      const response = await unifiedAuthService.googleSignup(credentialResponse.credential, accountType);
-      toast({ title: "Account created!", description: `Welcome to HirerMind!` });
-      await new Promise((r) => setTimeout(r, 100));
-      if (response.userType === "company") {
-        navigate(response.needsCompanyDetails ? "/auth/company-details" : "/dashboard");
-      } else {
-        navigate(response.profileCompleted ? "/candidate/dashboard" : "/candidate/profile?setup=true");
-      }
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Something went wrong.";
-      if (msg.includes("already exists")) {
-        toast({ title: "Account exists", description: "An account with this email already exists. Please sign in.", variant: "destructive" });
-      } else {
-        toast({ title: "Google Sign-Up Failed", description: msg, variant: "destructive" });
-      }
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -90,23 +107,63 @@ const UnifiedSignup = () => {
   });
 
   const strength = useMemo(() => getPasswordStrength(formData.password), [formData.password]);
+  const update = (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const update = (field: string, value: string) =>
-    setFormData((prev) => ({ ...prev, [field]: value }));
-
-  const canProceedStep1 = formData.email && formData.password && formData.password.length >= 8;
-
-  const canSubmit =
+  const canProceedStep1 = Boolean(formData.email && formData.password && formData.password.length >= 8);
+  const canSubmit = Boolean(
     formData.firstName &&
-    formData.lastName &&
-    formData.email &&
-    formData.password.length >= 8 &&
-    (accountType === "candidate" || formData.company);
+      formData.lastName &&
+      formData.email &&
+      formData.password.length >= 8 &&
+      (accountType === "candidate" || formData.company)
+  );
+
+  const routeAfterAuth = (response: { userType: string; needsCompanyDetails?: boolean; profileCompleted?: boolean }) => {
+    if (response.userType === "company") {
+      navigate(response.needsCompanyDetails ? "/auth/company-details" : "/dashboard");
+    } else {
+      navigate(response.profileCompleted ? "/candidate/dashboard" : "/candidate/profile?setup=true");
+    }
+  };
+
+  const handleGoogleSignup = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      toast({
+        title: "Authentication failed",
+        description: "No credential received from Google",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsGoogleLoading(true);
+    try {
+      const response = await unifiedAuthService.googleSignup(credentialResponse.credential, accountType);
+      toast({ title: "Account created", description: "Welcome to Hyre." });
+      await new Promise((r) => setTimeout(r, 100));
+      routeAfterAuth(response);
+    } catch (error) {
+      const msg =
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || "Something went wrong.";
+      toast({
+        title: msg.includes("already exists") ? "Account exists" : "Google sign-up failed",
+        description: msg.includes("already exists")
+          ? "An account with this email already exists. Please sign in instead."
+          : msg,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (step === 1) {
+      if (canProceedStep1) setStep(2);
+      return;
+    }
 
+    setIsLoading(true);
     try {
       const response = await unifiedAuthService.signup({
         firstName: formData.firstName,
@@ -121,23 +178,21 @@ const UnifiedSignup = () => {
       });
 
       toast({
-        title: "Account created!",
-        description: accountType === "company"
-          ? "Welcome to HirerMind. Let's set up your company profile."
-          : "Welcome! Let's complete your candidate profile.",
+        title: "Account created",
+        description:
+          accountType === "company"
+            ? "Welcome to Hyre. Let's set up your company profile."
+            : "Welcome. Let's complete your candidate profile.",
       });
 
       await new Promise((r) => setTimeout(r, 100));
-
-      if (response.userType === "company") {
-        navigate(response.needsCompanyDetails ? "/auth/company-details" : "/dashboard");
-      } else {
-        navigate(response.profileCompleted ? "/candidate/dashboard" : "/candidate/profile?setup=true");
-      }
-    } catch (error: any) {
+      routeAfterAuth(response);
+    } catch (error) {
       toast({
         title: "Registration failed",
-        description: error.response?.data?.message || "Something went wrong. Please try again.",
+        description:
+          (error as { response?: { data?: { message?: string } } }).response?.data?.message ||
+          "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -146,305 +201,364 @@ const UnifiedSignup = () => {
   };
 
   return (
-    <AuthLayout>
-      <div className="text-center mb-8">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-        <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="text-muted-foreground">Join HirerMind — start hiring or get hired</p>
+    <AuthLayout headline="Start hiring in minutes">
+      <div className="mb-6">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">Create your account</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          {step === 1 ? "Choose how you'll use Hyre." : "A few details and you're in."}
+        </p>
       </div>
 
-      {/* Step indicator */}
-      <div className="flex items-center justify-center gap-2 mb-6">
+      {/* ── Progress rail ── */}
+      <div className="mb-7 flex items-center gap-3" role="group" aria-label="Signup progress">
         {[1, 2].map((s) => (
-          <div key={s} className="flex items-center gap-2">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                step >= s
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              }`}
+          <div key={s} className="flex flex-1 items-center gap-3">
+            <span
+              className={cn(
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all duration-300",
+                step > s
+                  ? "bg-success text-success-foreground"
+                  : step === s
+                    ? "bg-primary text-primary-foreground shadow-glow"
+                    : "bg-secondary text-muted-foreground"
+              )}
             >
-              {step > s ? <Check className="w-4 h-4" /> : s}
-            </div>
-            {s < 2 && (
-              <div className={`w-12 h-0.5 ${step >= 2 ? "bg-primary" : "bg-muted"}`} />
-            )}
+              {step > s ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : s}
+            </span>
+            <span className="h-1 flex-1 overflow-hidden rounded-full bg-secondary">
+              <motion.span
+                className="block h-full rounded-full bg-gradient-primary"
+                initial={false}
+                animate={{ width: step > s ? "100%" : step === s ? "45%" : "0%" }}
+                transition={{ duration: 0.5, ease: EASE.expo }}
+              />
+            </span>
           </div>
         ))}
       </div>
 
-      <Card className="bg-gradient-card border-0 shadow-elegant">
-        <CardHeader className="text-center pb-4">
-          <CardTitle>{step === 1 ? "Get Started" : "Your Details"}</CardTitle>
-          <CardDescription>
-            {step === 1
-              ? "Choose your account type and set your credentials"
-              : accountType === "company"
-              ? "Tell us about yourself and your company"
-              : "Tell us a bit about yourself"}
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            {step === 1 && (
-              <div className="space-y-5">
-                {/* Account type toggle */}
-                <div className="flex rounded-lg bg-muted p-1">
-                  <button
-                    type="button"
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
-                      accountType === "company"
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                    onClick={() => setAccountType("company")}
-                  >
-                    <Building className="w-4 h-4" />
-                    I'm hiring
-                  </button>
-                  <button
-                    type="button"
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
-                      accountType === "candidate"
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                    onClick={() => setAccountType("candidate")}
-                  >
-                    <User className="w-4 h-4" />
-                    I'm looking for work
-                  </button>
+      <form onSubmit={handleSubmit}>
+        <AnimatePresence mode="wait" initial={false}>
+          {step === 1 ? (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.28, ease: EASE.expo }}
+              className="space-y-5"
+            >
+              {/* Account type as choice cards */}
+              <fieldset className="space-y-2">
+                <legend className="sr-only">Account type</legend>
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  {ACCOUNT_TYPES.map((t) => {
+                    const active = accountType === t.key;
+                    return (
+                      <button
+                        key={t.key}
+                        type="button"
+                        onClick={() => setAccountType(t.key)}
+                        aria-pressed={active}
+                        className={cn(
+                          "group relative rounded-[var(--radius-lg)] border p-3.5 text-left transition-all duration-300 ease-expo",
+                          active
+                            ? "border-primary/45 bg-primary/6 shadow-glow"
+                            : "border-border bg-surface-2/50 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-sm"
+                        )}
+                      >
+                        <span className="flex items-center justify-between">
+                          <span
+                            className={cn(
+                              "flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] transition-colors",
+                              active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                            )}
+                          >
+                            <t.icon className="h-4 w-4" />
+                          </span>
+                          <span
+                            className={cn(
+                              "flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors",
+                              active ? "border-primary bg-primary" : "border-border-strong"
+                            )}
+                          >
+                            {active && <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={4} />}
+                          </span>
+                        </span>
+                        <span className="mt-3 block text-[13px] font-semibold text-foreground">{t.title}</span>
+                        <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">
+                          {t.description}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
+              </fieldset>
 
-                {/* Google signup */}
-                <div className="flex justify-center">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSignup}
-                    onError={() => toast({ title: "Sign-up failed", description: "Google sign-up was cancelled or failed", variant: "destructive" })}
-                    theme="outline"
-                    size="large"
-                    text="signup_with"
-                  />
+              {/* Google */}
+              <div className="flex justify-center [&>div]:w-full">
+                <GoogleLogin
+                  onSuccess={handleGoogleSignup}
+                  onError={() =>
+                    toast({ title: "Google sign-up failed", description: "Please try again.", variant: "destructive" })
+                  }
+                  theme="outline"
+                  size="large"
+                  text="signup_with"
+                  width="100%"
+                />
+              </div>
+              {isGoogleLoading && (
+                <p className="text-center text-xs text-muted-foreground">Creating your account…</p>
+              )}
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center" aria-hidden>
+                  <span className="w-full border-t border-border" />
                 </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or sign up with email</span>
-                  </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-background px-3 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                    or with email
+                  </span>
                 </div>
+              </div>
 
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="email" required>
+                  Work email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                  value={formData.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  required
+                  startAdornment={<Mail />}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="password" required>
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Create a strong password"
+                  value={formData.password}
+                  onChange={(e) => update("password", e.target.value)}
+                  required
+                  startAdornment={<Lock />}
+                  endAdornment={
+                    <button
+                      type="button"
+                      data-compact
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-xs)] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  }
+                />
+
+                {formData.password && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
+                        <motion.span
+                          className={cn("block h-full rounded-full", STRENGTH_BAR[strength.label])}
+                          initial={false}
+                          animate={{ width: `${strength.score}%` }}
+                          transition={{ duration: 0.35, ease: EASE.expo }}
+                        />
+                      </span>
+                      <span className={cn("font-mono text-[10px] uppercase tracking-wider", STRENGTH_TEXT[strength.label])}>
+                        {strength.label}
+                      </span>
+                    </div>
+
+                    <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                      {PASSWORD_RULES.map((rule) => {
+                        const ok = rule.test(formData.password);
+                        return (
+                          <li
+                            key={rule.label}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] transition-colors duration-200",
+                              ok
+                                ? "border-success/25 bg-success/10 text-success"
+                                : "border-border bg-secondary text-muted-foreground"
+                            )}
+                          >
+                            <Check className={cn("h-2.5 w-2.5", !ok && "opacity-30")} strokeWidth={3} />
+                            {rule.label}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </motion.div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                variant="hero"
+                size="lg"
+                className="w-full"
+                disabled={!canProceedStep1}
+                iconRight={<ArrowRight className="h-4 w-4" />}
+              >
+                Continue
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.28, ease: EASE.expo }}
+              className="space-y-4"
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName" required>
+                    First name
+                  </Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder={accountType === "company" ? "you@company.com" : "you@example.com"}
-                    value={formData.email}
-                    onChange={(e) => update("email", e.target.value)}
+                    id="firstName"
+                    autoComplete="given-name"
+                    placeholder="Ada"
+                    value={formData.firstName}
+                    onChange={(e) => update("firstName", e.target.value)}
                     required
                   />
                 </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Create a strong password"
-                      value={formData.password}
-                      onChange={(e) => update("password", e.target.value)}
-                      required
-                      minLength={8}
-                      className="pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Strength meter + rules */}
-                  {formData.password.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${strengthColors[strength.label]}`}
-                          style={{ width: `${strength.score}%` }}
-                        />
-                      </div>
-                      <p className={`text-xs font-medium capitalize ${strengthTextColors[strength.label]}`}>
-                        {strength.label}
-                      </p>
-                      <ul className="space-y-1">
-                        {passwordRules.map((rule) => (
-                          <li
-                            key={rule.label}
-                            className={`flex items-center gap-1.5 text-xs ${
-                              rule.test(formData.password)
-                                ? "text-green-600 dark:text-green-400"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            <Check className={`w-3 h-3 ${rule.test(formData.password) ? "" : "opacity-30"}`} />
-                            {rule.label}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName" required>
+                    Last name
+                  </Label>
+                  <Input
+                    id="lastName"
+                    autoComplete="family-name"
+                    placeholder="Lovelace"
+                    value={formData.lastName}
+                    onChange={(e) => update("lastName", e.target.value)}
+                    required
+                  />
                 </div>
-
-                <Button
-                  type="button"
-                  variant="hero"
-                  size="lg"
-                  className="w-full"
-                  disabled={!canProceedStep1}
-                  onClick={() => setStep(2)}
-                >
-                  Continue
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
               </div>
-            )}
 
-            {step === 2 && (
-              <div className="space-y-4">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="mb-2"
-                  onClick={() => setStep(1)}
-                >
-                  <ArrowLeft className="w-4 h-4 mr-1" />
-                  Back
-                </Button>
-
-                {/* Name */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
+              {accountType === "company" ? (
+                <>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="company" required>
+                      Company
+                    </Label>
                     <Input
-                      id="firstName"
-                      placeholder="John"
-                      value={formData.firstName}
-                      onChange={(e) => update("firstName", e.target.value)}
+                      id="company"
+                      autoComplete="organization"
+                      placeholder="Acme Inc."
+                      value={formData.company}
+                      onChange={(e) => update("company", e.target.value)}
                       required
+                      startAdornment={<Building2 />}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="role">Your role</Label>
                     <Input
-                      id="lastName"
-                      placeholder="Doe"
-                      value={formData.lastName}
-                      onChange={(e) => update("lastName", e.target.value)}
-                      required
+                      id="role"
+                      autoComplete="organization-title"
+                      placeholder="Head of Talent"
+                      value={formData.role}
+                      onChange={(e) => update("role", e.target.value)}
                     />
                   </div>
-                </div>
-
-                {/* Company-specific fields */}
-                {accountType === "company" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="company">Company Name</Label>
-                      <Input
-                        id="company"
-                        placeholder="Acme Inc."
-                        value={formData.company}
-                        onChange={(e) => update("company", e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Your Role <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                      <Input
-                        id="role"
-                        placeholder="HR Manager, CTO, Recruiter..."
-                        value={formData.role}
-                        onChange={(e) => update("role", e.target.value)}
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* Candidate-specific fields */}
-                {accountType === "candidate" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="role">Current title</Label>
+                    <Input
+                      id="role"
+                      placeholder="Frontend Developer"
+                      value={formData.role}
+                      onChange={(e) => update("role", e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone">Phone</Label>
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+91 98765 43210"
+                        autoComplete="tel"
+                        placeholder="+1 555 0100"
                         value={formData.phone}
                         onChange={(e) => update("phone", e.target.value)}
+                        startAdornment={<Phone />}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="location">Location</Label>
                       <Input
                         id="location"
-                        placeholder="Mumbai, India"
+                        placeholder="Berlin"
                         value={formData.location}
                         onChange={(e) => update("location", e.target.value)}
+                        startAdornment={<MapPin />}
                       />
                     </div>
-                  </>
-                )}
+                  </div>
+                </>
+              )}
 
+              <div className="flex gap-2.5 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setStep(1)}
+                  icon={<ArrowLeft className="h-4 w-4" />}
+                >
+                  Back
+                </Button>
                 <Button
                   type="submit"
                   variant="hero"
                   size="lg"
-                  className="w-full"
-                  disabled={isLoading || !canSubmit}
+                  className="flex-1"
+                  disabled={!canSubmit}
+                  loading={isLoading}
+                  loadingText="Creating account…"
                 >
-                  {isLoading ? "Creating account..." : "Create Account"}
+                  Create account
                 </Button>
-
-                <p className="text-xs text-center text-muted-foreground pt-1">
-                  By signing up, you agree to our{" "}
-                  <Link to="/privacy" className="text-primary hover:underline">Terms & Privacy Policy</Link>
-                </p>
               </div>
-            )}
-          </form>
 
-          <div className="mt-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link to="/login" className="text-primary hover:underline font-medium">
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+              <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+                By creating an account you agree to our{" "}
+                <Link to="/privacy" className="text-foreground no-underline hover:underline">
+                  terms and privacy policy
+                </Link>
+                .
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link to="/login" className="font-medium text-primary no-underline hover:underline">
+          Sign in
+        </Link>
+      </p>
     </AuthLayout>
   );
 };

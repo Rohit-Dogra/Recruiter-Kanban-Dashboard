@@ -231,14 +231,14 @@ const CandidateProfile = () => {
     <CandidateLayout hideFooter>
       <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-            <p className="text-gray-600 mt-2">Manage your professional information</p>
+            <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
+            <p className="text-muted-foreground mt-2">Manage your professional information</p>
           </div>
 
           {fetchingProfile ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-lg text-gray-600">Loading your profile...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-info mx-auto mb-4"></div>
+              <p className="text-lg text-muted-foreground">Loading your profile...</p>
             </div>
           ) : (
             <div className="grid gap-6">
@@ -254,54 +254,54 @@ const CandidateProfile = () => {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-sm font-medium text-gray-500">Phone Number</Label>
-                        <p className="text-gray-900">{formData.phone || 'Not provided'}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Phone Number</Label>
+                        <p className="text-foreground">{formData.phone || 'Not provided'}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-500">Location</Label>
-                        <p className="text-gray-900">{formData.location || 'Not provided'}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Location</Label>
+                        <p className="text-foreground">{formData.location || 'Not provided'}</p>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-sm font-medium text-gray-500">Current Title</Label>
-                        <p className="text-gray-900">{formData.currentTitle || 'Not provided'}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Current Title</Label>
+                        <p className="text-foreground">{formData.currentTitle || 'Not provided'}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-gray-500">Current Company</Label>
-                        <p className="text-gray-900">{formData.currentCompany || 'Not provided'}</p>
+                        <Label className="text-sm font-medium text-muted-foreground">Current Company</Label>
+                        <p className="text-foreground">{formData.currentCompany || 'Not provided'}</p>
                       </div>
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Years of Experience</Label>
-                      <p className="text-gray-900">{formData.experience ? `${formData.experience} years` : 'Not provided'}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Years of Experience</Label>
+                      <p className="text-foreground">{formData.experience ? `${formData.experience} years` : 'Not provided'}</p>
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Education</Label>
-                      <p className="text-gray-900">{formData.education || 'Not provided'}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Education</Label>
+                      <p className="text-foreground">{formData.education || 'Not provided'}</p>
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Skills</Label>
+                      <Label className="text-sm font-medium text-muted-foreground">Skills</Label>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {formData.skills.length > 0 ? (
                           formData.skills.map((skill, index) => (
-                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-sm">
+                            <span key={index} className="px-2 py-1 bg-info/14 text-info rounded-md text-sm">
                               {skill}
                             </span>
                           ))
                         ) : (
-                          <p className="text-gray-900">No skills added</p>
+                          <p className="text-foreground">No skills added</p>
                         )}
                       </div>
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Resume</Label>
-                      <p className="text-gray-900">{formData.resumeUrl ? 'Resume uploaded' : 'No resume uploaded'}</p>
+                      <Label className="text-sm font-medium text-muted-foreground">Resume</Label>
+                      <p className="text-foreground">{formData.resumeUrl ? 'Resume uploaded' : 'No resume uploaded'}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -401,16 +401,16 @@ const CandidateProfile = () => {
 
                 <div className="space-y-2">
                   <Label>Resume (PDF only)</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                  <div className="border-2 border-dashed border-border rounded-lg p-6">
                     {!resumeFile && !formData.resumeUrl ? (
                       <div className="text-center">
-                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
                         <div className="mt-4">
                           <label htmlFor="resume-upload" className="cursor-pointer">
-                            <span className="mt-2 block text-sm font-medium text-gray-900">
+                            <span className="mt-2 block text-sm font-medium text-foreground">
                               Upload your professional resume
                             </span>
-                            <span className="mt-1 block text-sm text-gray-500">
+                            <span className="mt-1 block text-sm text-muted-foreground">
                               PDF files only, max 10MB. Must contain professional information like experience, education, and skills.
                             </span>
                           </label>
@@ -426,12 +426,12 @@ const CandidateProfile = () => {
                     ) : (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <FileText className="h-8 w-8 text-blue-500" />
+                          <FileText className="h-8 w-8 text-info" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-foreground">
                               {resumeFile ? resumeFile.name : 'Current Resume'}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                               {resumeFile ? `${(resumeFile.size / 1024 / 1024).toFixed(2)} MB` : 'Uploaded'}
                             </p>
                           </div>
@@ -451,21 +451,21 @@ const CandidateProfile = () => {
                   {/* Real-time validation feedback */}
                   {(validatingResume || resumeValidation.type) && (
                     <div className={`mt-2 p-3 rounded-md text-sm ${
-                      validatingResume ? 'bg-blue-50 text-blue-700' :
-                      resumeValidation.type === 'success' ? 'bg-green-50 text-green-700' :
-                      'bg-red-50 text-red-700'
+                      validatingResume ? 'bg-info/10 text-info' :
+                      resumeValidation.type === 'success' ? 'bg-success/10 text-success' :
+                      'bg-destructive/10 text-destructive'
                     }`}>
                       {validatingResume ? (
                         <div className="flex items-center space-x-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-info"></div>
                           <span>Validating resume content...</span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           {resumeValidation.type === 'success' ? (
-                            <span className="text-green-600">✓</span>
+                            <span className="text-success">✓</span>
                           ) : (
-                            <span className="text-red-600">✗</span>
+                            <span className="text-destructive">✗</span>
                           )}
                           <span>{resumeValidation.message}</span>
                         </div>

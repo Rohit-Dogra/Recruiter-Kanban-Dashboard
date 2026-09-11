@@ -19,10 +19,10 @@ import {
 import AdminDetailDialog, { DetailRow } from "./AdminDetailDialog";
 
 const statusColors: Record<string, string> = {
-  active: "bg-green-500/15 text-green-600 border-green-500/20",
-  draft: "bg-yellow-500/15 text-yellow-600 border-yellow-500/20",
-  paused: "bg-blue-500/15 text-blue-600 border-blue-500/20",
-  closed: "bg-gray-500/15 text-gray-500 border-gray-500/20",
+  active: "bg-success/15 text-success border-success/20",
+  draft: "bg-warning/15 text-warning border-warning/20",
+  paused: "bg-info/15 text-info border-info/20",
+  closed: "bg-muted-foreground/15 text-muted-foreground border-border-strong/20",
 };
 
 const JobManagement = () => {

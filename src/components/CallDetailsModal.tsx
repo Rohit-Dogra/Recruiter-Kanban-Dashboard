@@ -83,7 +83,7 @@ export function CallDetailsModal({ open, onOpenChange, screening, callDetails }:
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Overall Rating:</span>
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <Star className="w-4 h-4 text-warning fill-warning" />
                       <span>{screening?.rating || 'N/A'}/5</span>
                     </div>
                   </div>
@@ -126,7 +126,7 @@ export function CallDetailsModal({ open, onOpenChange, screening, callDetails }:
                         <div key={index} className="flex gap-3">
                           <div className={cn(
                             "w-2 h-2 rounded-full mt-2 flex-shrink-0",
-                            entry.speaker === 'AI' ? 'bg-blue-500' : 'bg-green-500'
+                            entry.speaker === 'AI' ? 'bg-info' : 'bg-success'
                           )} />
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">

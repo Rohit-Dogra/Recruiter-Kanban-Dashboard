@@ -40,7 +40,7 @@ const SortableStage = ({ stage, index, onUpdate, onDelete, stages }: any) => {
     { value: 'rejected', label: 'Rejected' }
   ];
 
-  const colorOptions = ['bg-blue-500', 'bg-yellow-500', 'bg-purple-500', 'bg-orange-500', 'bg-green-500', 'bg-emerald-600', 'bg-red-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-cyan-500', 'bg-lime-500'];
+  const colorOptions = ['bg-info', 'bg-warning', 'bg-primary', 'bg-warning', 'bg-success', 'bg-success', 'bg-destructive', 'bg-primary', 'bg-primary', 'bg-success', 'bg-brand-cyan', 'bg-success'];
   const iconOptions = ['FileText', 'Phone', 'Video', 'Users', 'Award', 'CheckCircle', 'X'];
   const actionOptions = [
     { value: 'none', label: 'No Action' },
@@ -52,9 +52,9 @@ const SortableStage = ({ stage, index, onUpdate, onDelete, stages }: any) => {
   ];
 
   return (
-    <div ref={setNodeRef} style={style} className="grid grid-cols-12 gap-2 p-4 border rounded-lg bg-white">
+    <div ref={setNodeRef} style={style} className="grid grid-cols-12 gap-2 p-4 border rounded-lg bg-surface">
       <div className="col-span-1 flex items-center">
-        <GripVertical className="w-4 h-4 text-gray-400 cursor-grab" {...attributes} {...listeners} />
+        <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" {...attributes} {...listeners} />
       </div>
       
       <div className="col-span-3">
@@ -130,7 +130,7 @@ const SortableStage = ({ stage, index, onUpdate, onDelete, stages }: any) => {
       
       <div className="col-span-1 flex items-center justify-center">
         <Button variant="ghost" size="sm" onClick={() => onDelete(index)}>
-          <Trash2 className="w-4 h-4 text-red-500" />
+          <Trash2 className="w-4 h-4 text-destructive" />
         </Button>
       </div>
     </div>
@@ -212,7 +212,7 @@ const PipelineSettings = () => {
       id: `stage-${Date.now()}`,
       name: 'New Stage',
       systemStatus: `custom-${Date.now()}`,
-      color: 'bg-blue-500',
+      color: 'bg-info',
       icon: 'FileText',
       actionType: 'email'
     };
@@ -299,13 +299,13 @@ const PipelineSettings = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Pipeline Settings</h1>
-        <p className="text-gray-600">Customize your recruitment pipeline stages</p>
+        <p className="text-muted-foreground">Customize your recruitment pipeline stages</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Pipeline Stages</CardTitle>
-          <div className="grid grid-cols-12 gap-2 text-sm text-gray-500 font-medium">
+          <div className="grid grid-cols-12 gap-2 text-sm text-muted-foreground font-medium">
             <div className="col-span-1"></div>
             <div className="col-span-3">Stage Name</div>
             <div className="col-span-2">System Status</div>

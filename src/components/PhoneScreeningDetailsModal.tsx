@@ -23,17 +23,17 @@ export function PhoneScreeningDetailsModal({
 
   const getRatingColor = (rating: string) => {
     const num = parseInt(rating?.split('/')[0] || '0');
-    if (num >= 8) return "text-green-600";
-    if (num >= 6) return "text-yellow-600";
-    if (num >= 4) return "text-orange-600";
-    return "text-red-600";
+    if (num >= 8) return "text-success";
+    if (num >= 6) return "text-warning";
+    if (num >= 4) return "text-warning";
+    return "text-destructive";
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return "text-green-600 bg-green-50";
-    if (score >= 6) return "text-yellow-600 bg-yellow-50";
-    if (score >= 4) return "text-orange-600 bg-orange-50";
-    return "text-red-600 bg-red-50";
+    if (score >= 8) return "text-success bg-success/10";
+    if (score >= 6) return "text-warning bg-warning/10";
+    if (score >= 4) return "text-warning bg-warning/10";
+    return "text-destructive bg-destructive/10";
   };
 
   return (
@@ -59,7 +59,7 @@ export function PhoneScreeningDetailsModal({
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Star className="w-4 h-4 text-yellow-500" />
+                    <Star className="w-4 h-4 text-warning" />
                     <span className="text-sm font-medium">Overall Score</span>
                   </div>
                   <div className={cn("text-2xl font-bold", getScoreColor(details.overallScore || 0))}>
@@ -71,7 +71,7 @@ export function PhoneScreeningDetailsModal({
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-blue-500" />
+                    <Clock className="w-4 h-4 text-info" />
                     <span className="text-sm font-medium">Duration</span>
                   </div>
                   <div className="text-2xl font-bold">
@@ -83,7 +83,7 @@ export function PhoneScreeningDetailsModal({
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Phone className="w-4 h-4 text-green-500" />
+                    <Phone className="w-4 h-4 text-success" />
                     <span className="text-sm font-medium">Call Status</span>
                   </div>
                   <Badge variant={details.callStatus === 'completed' ? 'default' : 'secondary'}>

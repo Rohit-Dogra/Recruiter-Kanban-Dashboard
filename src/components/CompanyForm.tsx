@@ -82,7 +82,7 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <form className="bg-white/80 rounded-2xl shadow-lg p-8 space-y-6 border border-border/30 max-w-2xl mx-auto" onSubmit={handleSubmit}>
+    <form className="bg-surface/80 rounded-2xl shadow-lg p-8 space-y-6 border border-border/30 max-w-2xl mx-auto" onSubmit={handleSubmit}>
       <div className="text-center mb-6">
         <div className="mx-auto w-20 h-20 rounded-full shadow-md mb-2 bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center overflow-hidden">
           {logoFile ? (

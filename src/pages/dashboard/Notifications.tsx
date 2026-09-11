@@ -13,39 +13,39 @@ type FilterTab  = "all" | "unread" | "job" | "candidate" | "interview" | "offer"
 
 /* ── Notification type config ── */
 const typeConfig: Record<NotifType, { icon: any; bg: string; iconColor: string; border: string }> = {
-  job:       { icon: Briefcase,   bg: "bg-blue-500/10",    iconColor: "text-blue-400",    border: "border-blue-500/20"   },
-  candidate: { icon: UserCheck,   bg: "bg-indigo-500/10",  iconColor: "text-indigo-400",  border: "border-indigo-500/20" },
-  interview: { icon: Phone,       bg: "bg-cyan-500/10",    iconColor: "text-cyan-400",    border: "border-cyan-500/20"   },
-  offer:     { icon: Award,       bg: "bg-emerald-500/10", iconColor: "text-emerald-400", border: "border-emerald-500/20"},
-  system:    { icon: Info,        bg: "bg-zinc-500/10",    iconColor: "text-zinc-400",    border: "border-zinc-500/20"   },
-  alert:     { icon: AlertCircle, bg: "bg-orange-500/10",  iconColor: "text-orange-400",  border: "border-orange-500/20" },
+  job:       { icon: Briefcase,   bg: "bg-info/10",    iconColor: "text-info",    border: "border-info/20"   },
+  candidate: { icon: UserCheck,   bg: "bg-primary/10",  iconColor: "text-primary",  border: "border-primary/20" },
+  interview: { icon: Phone,       bg: "bg-brand-cyan/10",    iconColor: "text-brand-cyan",    border: "border-brand-cyan/20"   },
+  offer:     { icon: Award,       bg: "bg-success/10", iconColor: "text-success", border: "border-success/20"},
+  system:    { icon: Info,        bg: "bg-muted-foreground/10",    iconColor: "text-muted-foreground",    border: "border-border-strong/20"   },
+  alert:     { icon: AlertCircle, bg: "bg-warning/10",  iconColor: "text-warning",  border: "border-warning/20" },
 };
 
 /* ── Stage / tag color map — each stage gets its own unique color ── */
 const stageColorMap: Record<string, { bg: string; text: string; border: string; dot: string }> = {
   // Application stages
-  "applied":        { bg: "bg-blue-50",     text: "text-blue-700",     border: "border-blue-200",     dot: "bg-blue-500"     },
-  "new apply":      { bg: "bg-blue-50",     text: "text-blue-700",     border: "border-blue-200",     dot: "bg-blue-500"     },
-  "new":            { bg: "bg-sky-50",      text: "text-sky-700",      border: "border-sky-200",      dot: "bg-sky-500"      },
-  "reviewed":       { bg: "bg-amber-50",    text: "text-amber-700",    border: "border-amber-200",    dot: "bg-amber-500"    },
-  "shortlisted":    { bg: "bg-indigo-50",   text: "text-indigo-700",   border: "border-indigo-200",   dot: "bg-indigo-500"   },
-  "technical":      { bg: "bg-purple-50",   text: "text-purple-700",   border: "border-purple-200",   dot: "bg-purple-500"   },
-  "interview":      { bg: "bg-violet-50",   text: "text-violet-700",   border: "border-violet-200",   dot: "bg-violet-500"   },
-  "scheduled":      { bg: "bg-violet-50",   text: "text-violet-700",   border: "border-violet-200",   dot: "bg-violet-500"   },
-  "offer":          { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200",  dot: "bg-emerald-500"  },
-  "offer letter":   { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200",  dot: "bg-emerald-500"  },
-  "offered":        { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200",  dot: "bg-emerald-500"  },
-  "hired":          { bg: "bg-teal-50",     text: "text-teal-700",     border: "border-teal-200",     dot: "bg-teal-500"     },
-  "rejected":       { bg: "bg-red-50",      text: "text-red-700",      border: "border-red-200",      dot: "bg-red-500"      },
-  "withdrawn":      { bg: "bg-zinc-100",    text: "text-zinc-600",     border: "border-zinc-300",     dot: "bg-zinc-400"     },
+  "applied":        { bg: "bg-info/10",     text: "text-info",     border: "border-info/20",     dot: "bg-info"     },
+  "new apply":      { bg: "bg-info/10",     text: "text-info",     border: "border-info/20",     dot: "bg-info"     },
+  "new":            { bg: "bg-info/10",      text: "text-info",      border: "border-info/20",      dot: "bg-info"      },
+  "reviewed":       { bg: "bg-warning/10",    text: "text-warning",    border: "border-warning/20",    dot: "bg-warning"    },
+  "shortlisted":    { bg: "bg-primary/10",   text: "text-primary",   border: "border-primary/20",   dot: "bg-primary"   },
+  "technical":      { bg: "bg-primary/10",   text: "text-primary",   border: "border-primary/20",   dot: "bg-primary"   },
+  "interview":      { bg: "bg-primary/10",   text: "text-primary",   border: "border-primary/20",   dot: "bg-primary"   },
+  "scheduled":      { bg: "bg-primary/10",   text: "text-primary",   border: "border-primary/20",   dot: "bg-primary"   },
+  "offer":          { bg: "bg-success/10",  text: "text-success",  border: "border-success/20",  dot: "bg-success"  },
+  "offer letter":   { bg: "bg-success/10",  text: "text-success",  border: "border-success/20",  dot: "bg-success"  },
+  "offered":        { bg: "bg-success/10",  text: "text-success",  border: "border-success/20",  dot: "bg-success"  },
+  "hired":          { bg: "bg-success/10",     text: "text-success",     border: "border-success/20",     dot: "bg-success"     },
+  "rejected":       { bg: "bg-destructive/10",      text: "text-destructive",      border: "border-destructive/20",      dot: "bg-destructive"      },
+  "withdrawn":      { bg: "bg-secondary",    text: "text-muted-foreground",     border: "border-border",     dot: "bg-muted-foreground"     },
   // Generic tags
-  "job":            { bg: "bg-blue-50",     text: "text-blue-700",     border: "border-blue-200",     dot: "bg-blue-500"     },
-  "alert":          { bg: "bg-orange-50",   text: "text-orange-700",   border: "border-orange-200",   dot: "bg-orange-500"   },
-  "system":         { bg: "bg-zinc-100",    text: "text-zinc-600",     border: "border-zinc-300",     dot: "bg-zinc-400"     },
+  "job":            { bg: "bg-info/10",     text: "text-info",     border: "border-info/20",     dot: "bg-info"     },
+  "alert":          { bg: "bg-warning/10",   text: "text-warning",   border: "border-warning/20",   dot: "bg-warning"   },
+  "system":         { bg: "bg-secondary",    text: "text-muted-foreground",     border: "border-border",     dot: "bg-muted-foreground"     },
 };
 
 const getStageColor = (tag: string) =>
-  stageColorMap[tag.toLowerCase()] ?? { bg: "bg-zinc-100", text: "text-zinc-600", border: "border-zinc-300", dot: "bg-zinc-400" };
+  stageColorMap[tag.toLowerCase()] ?? { bg: "bg-secondary", text: "text-muted-foreground", border: "border-border", dot: "bg-muted-foreground" };
 
 /* ── Filter tabs ── */
 const filterTabs: { key: FilterTab; label: string }[] = [
@@ -104,12 +104,12 @@ const Notifications = () => {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <Bell className="w-4 h-4 text-blue-400" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] border border-primary/20 bg-primary/10">
+                <Bell className="w-4 h-4 text-info" />
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">Notifications</h1>
               {unreadCount > 0 && (
-                <span className="min-w-6 h-6 px-2 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-destructive px-2 text-xs font-semibold text-destructive-foreground">
                   {unreadCount}
                 </span>
               )}
@@ -132,7 +132,7 @@ const Notifications = () => {
             {notifications.length > 0 && (
               <button
                 onClick={clearAll}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-destructive hover:border-destructive hover:bg-red-50 transition-all"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Clear all</span>
@@ -145,9 +145,9 @@ const Notifications = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
           {[
             { label: "Total",      value: notifications.length,                                  icon: Bell,        num: "text-foreground"   },
-            { label: "Unread",     value: unreadCount,                                           icon: AlertCircle, num: "text-blue-600"     },
-            // { label: "Interviews", value: notifications.filter(n => n.type === "interview").length, icon: Phone,  num: "text-cyan-600"     },
-            // { label: "Offers",     value: notifications.filter(n => n.type === "offer").length,  icon: Award,       num: "text-emerald-600"  },
+            { label: "Unread",     value: unreadCount,                                           icon: AlertCircle, num: "text-info"     },
+            // { label: "Interviews", value: notifications.filter(n => n.type === "interview").length, icon: Phone,  num: "text-brand-cyan"     },
+            // { label: "Offers",     value: notifications.filter(n => n.type === "offer").length,  icon: Award,       num: "text-success"  },
           ].map((s, i) => {
             const Icon = s.icon;
             return (
@@ -178,14 +178,14 @@ const Notifications = () => {
                 onClick={() => setActiveFilter(tab.key)}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150
                   ${isActive
-                    ? "bg-blue-600 text-white shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-glow"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent"
                   }`}
               >
                 {tab.label}
                 {count > 0 && (
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full
-                    ${isActive ? "bg-white/25 text-white" : "bg-muted text-muted-foreground"}`}>
+                    ${isActive ? "bg-surface/25 text-white" : "bg-muted text-muted-foreground"}`}>
                     {count}
                   </span>
                 )}
@@ -198,7 +198,7 @@ const Notifications = () => {
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <div className="w-8 h-8 border-4 border-info border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">Loading notifications…</p>
             </div>
           </div>
@@ -230,13 +230,13 @@ const Notifications = () => {
                   onClick={() => markRead(notif.id)}
                   className={`group relative flex items-start gap-3 sm:gap-4 px-3 sm:px-4 py-4 rounded-xl border transition-all duration-150 cursor-default
                     ${!notif.read
-                      ? "bg-blue-500/5 border-blue-500/15 hover:bg-blue-500/8"
+                      ? "bg-info/5 border-info/15 hover:bg-info/8"
                       : "bg-card border-border hover:bg-muted/20"
                     }`}
                 >
                   {/* Unread dot */}
                   {!notif.read && (
-                    <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-info" />
                   )}
 
                   {/* Type icon */}
@@ -276,7 +276,7 @@ const Notifications = () => {
                       <button
                         onClick={(e) => { e.stopPropagation(); markRead(notif.id); }}
                         title="Mark as read"
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all"
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-info hover:bg-info/10 transition-all"
                       >
                         <Check className="w-3.5 h-3.5" />
                       </button>
@@ -284,7 +284,7 @@ const Notifications = () => {
                     <button
                       onClick={(e) => { e.stopPropagation(); deleteNotif(notif.id); }}
                       title="Delete"
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-all"
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-red-50 transition-all"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

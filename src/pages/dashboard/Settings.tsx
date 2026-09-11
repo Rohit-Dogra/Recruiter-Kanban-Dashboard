@@ -51,21 +51,21 @@ interface CompanySettings {
 }
 
 const ROLE_STYLES: Record<string, string> = {
-  Owner: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  Admin: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  HR: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-  Recruiter: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+  Owner: 'bg-warning/14 text-warning dark:bg-warning/30 dark:text-warning',
+  Admin: 'bg-info/14 text-info dark:bg-info/30 dark:text-info',
+  HR: 'bg-success/14 text-success dark:bg-success/30 dark:text-success',
+  Recruiter: 'bg-primary/14 text-primary dark:bg-primary/30 dark:text-primary',
   Member: 'bg-muted text-muted-foreground',
   Viewer: 'bg-muted text-muted-foreground',
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  Active: 'bg-emerald-500',
-  Pending: 'bg-amber-500',
+  Active: 'bg-success',
+  Pending: 'bg-warning',
   Inactive: 'bg-muted-foreground',
 };
 
-const AVATAR_COLORS = ['bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-red-500', 'bg-violet-500', 'bg-cyan-500'];
+const AVATAR_COLORS = ['bg-info', 'bg-success', 'bg-warning', 'bg-destructive', 'bg-primary', 'bg-brand-cyan'];
 
 function avatarColor(name: string) {
   return AVATAR_COLORS[(name || '').charCodeAt(0) % AVATAR_COLORS.length];
@@ -414,7 +414,7 @@ const SettingsPage: React.FC = () => {
                         <div>
                           <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                             {m.name}
-                            {m.isOwner && <Crown className="h-3.5 w-3.5 text-amber-500" />}
+                            {m.isOwner && <Crown className="h-3.5 w-3.5 text-warning" />}
                           </div>
                           <div className="text-xs text-muted-foreground">{m.email}</div>
                           <div className="mt-0.5 flex items-center gap-1.5">

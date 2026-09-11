@@ -1,224 +1,350 @@
-import { ArrowRight, Upload, Gauge, Phone, Code2, Award, Mail, Cpu } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Award, Code2, Cpu, Gauge, Phone, Upload, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useTheme } from "@/contexts/ThemeContext";
 
-const pipelineStages = [
+import { SectionHeading } from "@/components/marketing/SectionHeading";
+import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/motion/Reveal";
+import { ScoreRing } from "@/components/ui/ScoreRing";
+import { cn } from "@/lib/utils";
+import { EASE } from "@/lib/motion";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PIPELINE VISUALISATION
+   A live funnel: the bar chart on the left shows candidates surviving each
+   stage, and the panel on the right shows the board as it actually looks at
+   that stage. It auto-advances until the visitor takes control.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+interface Person {
+  name: string;
+  role: string;
+  score: number | null;
+}
+
+interface Stage {
+  id: string;
+  step: string;
+  title: string;
+  subtitle: string;
+  icon: LucideIcon;
+  count: number;
+  countLabel: string;
+  tone: string;
+  footer: string;
+  people: Person[];
+}
+
+const STAGES: Stage[] = [
   {
     id: "post",
     step: "01",
-    title: "Job Posted",
-    subtitle: "Company posts job with JD & required skills",
+    title: "Job posted",
+    subtitle: "Company posts a job with JD and required skills",
     icon: Upload,
     count: 1,
     countLabel: "position",
-    accent: "#3b82f6",
+    tone: "var(--brand-indigo)",
     footer: "Job live — applications open",
-    candidates: [
-      { name: "React Dev Role", role: "3 yrs exp · Remote", score: null },
-    ],
+    people: [{ name: "React Developer", role: "3 yrs exp · Remote", score: null }],
   },
   {
     id: "apply",
     step: "02",
-    title: "Candidate Applies",
-    subtitle: "Resume uploaded, AI extracts skills & experience",
+    title: "Candidate applies",
+    subtitle: "Résumé uploaded, AI extracts skills and experience",
     icon: Cpu,
     count: 48,
     countLabel: "candidates",
-    accent: "#6366f1",
-    footer: "Application received ✓",
-    candidates: [
-      { name: "Rohit Dogra", role: "Frontend Dev", score: null },
-      { name: "Arun Kumar", role: "Backend Dev", score: null },
+    tone: "var(--brand-violet)",
+    footer: "Application received",
+    people: [
+      { name: "Rohit Dogra", role: "Frontend developer", score: null },
+      { name: "Arun Kumar", role: "Backend developer", score: null },
+      { name: "Eshanya Sharma", role: "Full-stack developer", score: null },
     ],
   },
   {
     id: "ats",
     step: "03",
-    title: "ATS Score",
-    subtitle: "Score /100 · Skills matched · Hire recommendation",
+    title: "ATS score",
+    subtitle: "Score out of 100 · skills matched · hire recommendation",
     icon: Gauge,
     count: 48,
-    countLabel: "candidates",
-    accent: "#8b5cf6",
-    footer: "Profile under review",
-    candidates: [
-      { name: "Rohit Dogra", role: "Frontend Dev", score: 91 },
-      { name: "Eshanya Sharma", role: "Backend Dev", score: 84 },
+    countLabel: "scored",
+    tone: "var(--brand-fuchsia)",
+    footer: "Profiles under review",
+    people: [
+      { name: "Rohit Dogra", role: "Frontend developer", score: 91 },
+      { name: "Eshanya Sharma", role: "Backend developer", score: 84 },
+      { name: "Arun Kumar", role: "Backend developer", score: 62 },
     ],
   },
   {
     id: "aicall",
     step: "04",
-    title: "AI Calling Round",
-    subtitle: "AI calls shortlisted candidates · Basic screening",
+    title: "AI calling round",
+    subtitle: "AI calls shortlisted candidates for basic screening",
     icon: Phone,
     count: 24,
-    countLabel: "candidates",
-    accent: "#06b6d4",
-    footer: "Shortlisted — AI call scheduled",
-    candidates: [
-      { name: "Rohit Dogra", role: "Communication: 88", score: 88 },
-      { name: "Eshanya Sharma", role: "Communication: 94", score: 94 },
+    countLabel: "called",
+    tone: "var(--brand-cyan)",
+    footer: "Shortlisted — AI call complete",
+    people: [
+      { name: "Rohit Dogra", role: "Communication 88", score: 88 },
+      { name: "Eshanya Sharma", role: "Communication 94", score: 94 },
     ],
   },
   {
     id: "technical",
     step: "05",
-    title: "AI Technical Interview",
-    subtitle: "Domain knowledge · Problem solving · Full report",
+    title: "AI technical interview",
+    subtitle: "Domain knowledge · problem solving · full report",
     icon: Code2,
     count: 12,
-    countLabel: "candidates",
-    accent: "#10b981",
-    footer: "Technical interview scheduled",
-    candidates: [
-      { name: "Rohit Dogra", role: "Frontend Dev", score: 96 },
-      { name: "Ankita Kumari", role: "Backend Dev", score: 92 },
+    countLabel: "interviewed",
+    tone: "var(--success)",
+    footer: "Technical interview scored",
+    people: [
+      { name: "Rohit Dogra", role: "Frontend developer", score: 96 },
+      { name: "Ankita Kumari", role: "Backend developer", score: 92 },
     ],
   },
   {
     id: "offer",
     step: "06",
-    title: "Offer Letter",
-    subtitle: "Digital offer · e-Signature · Onboarding tracking",
+    title: "Offer letter",
+    subtitle: "Digital offer · e-signature · onboarding tracking",
     icon: Award,
     count: 4,
-    countLabel: "candidates",
-    accent: "#f59e0b",
-    footer: "Offer letter sent!",
-    candidates: [
-      { name: "Rohit Dogra", role: "Frontend Dev", score: 98 },
-    ],
+    countLabel: "offers",
+    tone: "var(--warning)",
+    footer: "Offer letter sent",
+    people: [{ name: "Rohit Dogra", role: "Frontend developer", score: 98 }],
   },
 ];
 
+const MAX = Math.max(...STAGES.map((s) => s.count));
+
 const PipelineVisualization = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [active, setActive] = useState(0);
+  const [auto, setAuto] = useState(true);
+  const reduce = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  // Only cycle while the section is actually on screen.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.25 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!auto || !visible || reduce) return;
+    const id = window.setInterval(() => setActive((i) => (i + 1) % STAGES.length), 3600);
+    return () => window.clearInterval(id);
+  }, [auto, visible, reduce]);
+
+  const stage = STAGES[active];
+
+  const select = (i: number) => {
+    setAuto(false);
+    setActive(i);
+  };
 
   return (
-    <section className={`py-24 relative overflow-hidden transition-colors duration-300 ${isDark ? "bg-background" : "bg-background"}`} id="pipeline">
-      {/* Background glow */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full blur-[120px] pointer-events-none"
-        style={{ background: isDark ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" }}
-      />
+    <section ref={sectionRef} id="pipeline" className="relative overflow-hidden py-20 sm:py-28">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-1/2 h-[420px] w-[820px] max-w-[120vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[140px]" />
+      </div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <div
-            className={`inline-flex items-center gap-2 border text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6 ${
-              isDark ? "border-zinc-700 bg-zinc-900/60 text-zinc-400" : "border-zinc-200 bg-zinc-100 text-zinc-500"
-            }`}
-          >
-            Pipeline Management
-          </div>
-          <h2
-            className={`text-4xl lg:text-5xl font-black mb-4 ${isDark ? "text-foreground" : "text-foreground"}`}
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            From Resume to Offer,{" "}
-            <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
-              Powered by AI
-            </span>
-          </h2>
-          <p className={`text-lg max-w-xl mx-auto text-muted-foreground`}>
-            Every stage automated. Candidates notified at each step via email. Quality stays constant at any scale.
-          </p>
-        </div>
+      <div className="container mx-auto">
+        <SectionHeading
+          eyebrow="Live pipeline"
+          title="Watch 48 applicants become 4 offers."
+          accentWord="4 offers."
+          description="Every narrowing step is a decision the system can explain — not a black box that returns a shortlist."
+        />
 
-        {/* Pipeline grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-          {pipelineStages.map((stage, index) => {
-            const Icon = stage.icon;
-            return (
-              <div key={stage.id} className="relative group">
-                <div
-                  className={`h-full rounded-xl border bg-card p-4 transition-all duration-200 hover:shadow-lg border-border`}
-                  style={{ borderTop: `3px solid ${stage.accent}` }}
+        <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
+          {/* ── Funnel ── */}
+          <Reveal direction="left" className="surface-card p-5 sm:p-7">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                Candidates remaining
+              </span>
+              {!auto && (
+                <button
+                  onClick={() => setAuto(true)}
+                  className="font-mono text-[11px] uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-70"
                 >
-                  {/* Step + icon */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] font-bold tracking-widest text-muted-foreground">{stage.step}</span>
-                    <div
-                      className="flex items-center justify-center w-8 h-8 rounded-lg"
-                      style={{ background: `${stage.accent}15`, border: `1px solid ${stage.accent}30` }}
+                  Auto-play
+                </button>
+              )}
+            </div>
+
+            <ul className="mt-5 space-y-2.5">
+              {STAGES.map((s, i) => {
+                const isActive = i === active;
+                const pct = (s.count / MAX) * 100;
+                return (
+                  <li key={s.id}>
+                    <button
+                      onClick={() => select(i)}
+                      aria-current={isActive}
+                      className={cn(
+                        "group flex w-full items-center gap-3 rounded-[var(--radius-md)] p-2 text-left transition-colors duration-300",
+                        isActive ? "bg-secondary/70" : "hover:bg-secondary/40"
+                      )}
                     >
-                      <Icon className="w-4 h-4" style={{ color: stage.accent }} />
-                    </div>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-xs font-bold text-foreground mb-1">{stage.title}</h3>
-                  <p className="text-[10px] leading-snug text-muted-foreground mb-2">{stage.subtitle}</p>
-
-                  {/* Count */}
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: stage.accent }} />
-                    <span className="text-[11px] text-muted-foreground font-medium">
-                      {stage.count} {stage.countLabel}
-                    </span>
-                  </div>
-
-                  {/* Candidates */}
-                  <div className="space-y-1.5">
-                    {stage.candidates.map((c, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-2.5 py-2"
-                      >
-                        <div
-                          className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-                          style={{ background: `linear-gradient(135deg, ${stage.accent}, ${stage.accent}99)` }}
-                        >
-                          {c.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] font-semibold truncate text-foreground">{c.name}</p>
-                          <p className="text-[9px] truncate text-muted-foreground">{c.role}</p>
-                        </div>
-                        {c.score !== null && (
-                          <span
-                            className="text-[10px] font-black flex-shrink-0 rounded px-1.5 py-0.5"
-                            style={{ color: stage.accent, background: `${stage.accent}15` }}
-                          >
-                            {c.score}
-                          </span>
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] transition-all duration-300",
+                          isActive ? "scale-105" : "opacity-60 group-hover:opacity-100"
                         )}
-                      </div>
-                    ))}
-                  </div>
+                        style={{ background: `hsl(${s.tone} / 0.12)`, color: `hsl(${s.tone})` }}
+                      >
+                        <s.icon className="h-4 w-4" />
+                      </span>
 
-                  {/* Footer */}
-                  <div className="mt-3 flex items-center gap-1.5 text-[9px] font-medium border rounded-lg px-2.5 py-1.5 border-border bg-muted/30 text-muted-foreground">
-                    <ArrowRight className="w-2.5 h-2.5 flex-shrink-0" />
-                    {stage.footer}
-                  </div>
-                </div>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span
+                            className={cn(
+                              "truncate text-[13px] font-medium transition-colors",
+                              isActive ? "text-foreground" : "text-muted-foreground"
+                            )}
+                          >
+                            {s.title}
+                          </span>
+                          <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                            {s.count}
+                          </span>
+                        </span>
 
-                {/* Arrow connector */}
-                {index < pipelineStages.length - 1 && (
-                  <div className="hidden xl:flex absolute top-[40%] -right-2.5 z-20">
-                    <div className="border rounded-full p-0.5 bg-background border-border">
-                      <ArrowRight className="w-3 h-3 text-muted-foreground" />
+                        <span className="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-border/70">
+                          <motion.span
+                            className="block h-full rounded-full"
+                            style={{ background: `hsl(${s.tone})` }}
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${pct}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.9, ease: EASE.expo, delay: i * 0.08 }}
+                          />
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="mt-6 flex items-center justify-between border-t border-border/70 pt-5">
+              <div>
+                <p className="font-display text-2xl font-semibold text-foreground">8.3%</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  Applicant → offer
+                </p>
+              </div>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/features">
+                  How it works
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
+          </Reveal>
+
+          {/* ── Stage board ── */}
+          <Reveal direction="right" className="relative">
+            <div className="surface-card relative h-full overflow-hidden p-5 sm:p-7">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full blur-3xl transition-colors duration-700"
+                style={{ background: `hsl(${stage.tone} / 0.18)` }}
+              />
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={stage.id}
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -12 }}
+                  transition={{ duration: 0.34, ease: EASE.expo }}
+                  className="relative flex h-full flex-col"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span
+                        className="font-mono text-[11px] uppercase tracking-[0.18em]"
+                        style={{ color: `hsl(${stage.tone})` }}
+                      >
+                        Stage {stage.step}
+                      </span>
+                      <h3 className="mt-1.5 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                        {stage.title}
+                      </h3>
+                      <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                        {stage.subtitle}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <p className="font-display text-3xl font-semibold tabular-nums text-foreground">
+                        {stage.count}
+                      </p>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                        {stage.countLabel}
+                      </p>
                     </div>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
 
-        {/* CTA */}
-        <div className="text-center">
-          <Link to="/signup" className="no-underline">
-            <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-3.5 rounded-lg text-sm tracking-wide transition-all duration-200 shadow-[0_0_30px_rgba(59,130,246,0.25)] hover:shadow-[0_0_40px_rgba(59,130,246,0.4)]">
-              View Full Pipeline
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </Link>
+                  {/* Candidate cards as they appear on the real board */}
+                  <ul className="mt-6 flex-1 space-y-2.5">
+                    {stage.people.map((p, i) => (
+                      <motion.li
+                        key={p.name}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, ease: EASE.expo, delay: 0.08 + i * 0.07 }}
+                        className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border/70 bg-surface-2/60 p-3"
+                      >
+                        <span
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+                          style={{
+                            background: `linear-gradient(135deg, hsl(${stage.tone}), hsl(${stage.tone} / 0.65))`,
+                          }}
+                        >
+                          {p.name
+                            .split(" ")
+                            .map((w) => w[0])
+                            .join("")
+                            .slice(0, 2)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-medium text-foreground">{p.name}</span>
+                          <span className="block truncate text-xs text-muted-foreground">{p.role}</span>
+                        </span>
+                        {p.score != null && <ScoreRing score={p.score} size={38} strokeWidth={3} />}
+                      </motion.li>
+                    ))}
+                  </ul>
+
+                  <p
+                    className="mt-5 inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-xs font-medium"
+                    style={{ background: `hsl(${stage.tone} / 0.1)`, color: `hsl(${stage.tone})` }}
+                  >
+                    <ArrowRight className="h-3 w-3" />
+                    {stage.footer}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

@@ -92,37 +92,37 @@ const AllCompaniesPage = () => {
       <div className="max-w-7xl mx-auto pb-16">
         {/* Header Section with Gradient */}
         <div className="mb-10 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-3xl blur-3xl"></div>
-          <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/50">
+          <div className="absolute inset-0 bg-gradient-to-r from-info/10 to-primary/10 rounded-3xl blur-3xl"></div>
+          <div className="relative bg-surface/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
+              <div className="p-2 bg-gradient-to-br from-info to-primary rounded-xl">
                 <Building2 className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-info to-primary bg-clip-text text-transparent">
                 Explore Companies
               </h1>
             </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <TrendingUp className="w-5 h-5 text-green-500" />
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <TrendingUp className="w-5 h-5 text-success" />
               <p className="text-lg font-medium">
-                <span className="text-2xl font-bold text-gray-900">{companies.length}</span> companies hiring now
+                <span className="text-2xl font-bold text-foreground">{companies.length}</span> companies hiring now
               </p>
             </div>
           </div>
         </div>
 
         {/* Enhanced Search and Filter Section - Combined in One Card */}
-        <Card className="mb-8 border-none shadow-2xl bg-white/90 backdrop-blur-sm overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 pointer-events-none"></div>
+        <Card className="mb-8 border-none shadow-2xl bg-surface/90 backdrop-blur-sm overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-info/5 to-primary/5 pointer-events-none"></div>
           <CardContent className="p-8 relative">
             {/* Combined Search Bar with Dropdown */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-0 group-focus-within:opacity-10 transition-opacity duration-300 blur-xl pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-info to-primary rounded-2xl opacity-0 group-focus-within:opacity-10 transition-opacity duration-300 blur-xl pointer-events-none"></div>
               
               {/* Search Input */}
-              <div className="relative z-10 flex items-center gap-4 bg-white border-2 border-gray-200 rounded-2xl shadow-lg focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 transition-all duration-300">
+              <div className="relative z-10 flex items-center gap-4 bg-surface border-2 border-border rounded-2xl shadow-lg focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 transition-all duration-300">
                 {/* Search Icon */}
-                <Search className="ml-5 text-gray-400 w-6 h-6 transition-colors group-focus-within:text-blue-600 flex-shrink-0" />
+                <Search className="ml-5 text-muted-foreground w-6 h-6 transition-colors group-focus-within:text-blue-600 flex-shrink-0" />
                 
                 {/* Search Input */}
                 <Input
@@ -142,7 +142,7 @@ const AllCompaniesPage = () => {
             filteredCompanies.map((company, index) => (
               <Card 
                 key={company.id} 
-                className="group relative border-none shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden bg-white/90 backdrop-blur-sm transform hover:-translate-y-2"
+                className="group relative border-none shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden bg-surface/90 backdrop-blur-sm transform hover:-translate-y-2"
                 onClick={() => handleViewCompany(company)}
                 style={{
                   animationDelay: `${index * 100}ms`,
@@ -151,28 +151,28 @@ const AllCompaniesPage = () => {
                 }}
               >
                 {/* Gradient Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-purple-600/0 group-hover:from-blue-600/5 group-hover:to-purple-600/5 transition-all duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-info/0 to-primary/0 group-hover:from-info/5 group-hover:to-primary/5 transition-all duration-500"></div>
                 
                 {/* Decorative Top Border */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-info via-primary to-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                 
                 <CardContent className="p-6 relative">
                   {/* Header Section - Logo + Company Name + Location */}
                   <div className="flex items-start gap-4 mb-6">
                     {/* Company Logo */}
                     <div className="relative flex-shrink-0">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
-                      <div className="relative w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-all duration-500 shadow-lg">
+                      <div className="absolute inset-0 bg-gradient-to-br from-info to-primary rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+                      <div className="relative w-16 h-16 bg-gradient-to-br from-info via-primary to-primary rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-all duration-500 shadow-lg">
                         <Building2 className="w-8 h-8 text-white" />
                       </div>
                     </div>
                     
                     {/* Company Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors duration-300 truncate">
+                      <h3 className="text-xl font-bold text-foreground mb-1 group-hover:text-info transition-colors duration-300 truncate">
                         {company.name}
                       </h3>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                         <MapPin className="w-4 h-4 flex-shrink-0" />
                         <span className="truncate">{company.location}</span>
                       </div>
@@ -181,17 +181,17 @@ const AllCompaniesPage = () => {
 
                   {/* Industry and Job Count */}
                   <div className="flex items-center gap-3 mb-6">
-                    <span className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-gray-700 rounded-full text-sm font-medium border border-blue-100">
+                    <span className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-foreground/80 rounded-full text-sm font-medium border border-info/14">
                       {company.industry}
                     </span>
-                    <span className="px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-gray-700 rounded-full text-sm font-medium border border-green-100">
+                    <span className="px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-foreground/80 rounded-full text-sm font-medium border border-success/14">
                       {company.jobCount || 0} Open Jobs
                     </span>
                   </div>
 
                   {/* View Profile Link */}
                   <Button 
-                    className="w-auto bg-transparent hover:bg-blue-50 text-blue-600 hover:text-blue-700 font-semibold py-2 px-0 rounded-none shadow-none border-none justify-start p-0 h-auto group/link"
+                    className="w-auto bg-transparent hover:bg-blue-50 text-info hover:text-info font-semibold py-2 px-0 rounded-none shadow-none border-none justify-start p-0 h-auto group/link"
                   >
                     <span className="flex items-center gap-2">
                       View Profile
@@ -203,16 +203,16 @@ const AllCompaniesPage = () => {
             ))
           ) : (
             <div className="col-span-full">
-              <Card className="border-none shadow-2xl bg-white/90 backdrop-blur-sm">
+              <Card className="border-none shadow-2xl bg-surface/90 backdrop-blur-sm">
                 <CardContent className="p-16 text-center">
                   <div className="relative inline-flex mb-6">
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 rounded-3xl blur-2xl opacity-50"></div>
                     <div className="relative p-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl">
-                      <Building2 className="w-20 h-20 text-gray-400" />
+                      <Building2 className="w-20 h-20 text-muted-foreground" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">No companies found</h3>
-                  <p className="text-lg text-gray-600">
+                  <h3 className="text-2xl font-bold text-foreground mb-3">No companies found</h3>
+                  <p className="text-lg text-muted-foreground">
                     {searchTerm
                       ? "Try adjusting your search criteria" 
                       : "No companies available at the moment"}

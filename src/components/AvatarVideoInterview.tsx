@@ -310,14 +310,14 @@ export default function AvatarVideoInterview({
           
           {/* Status Indicator - Removed Recording Icon */}
           <div className="absolute top-5 lg:top-10 left-5 lg:left-10 z-20">
-            <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
+            <span className="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-sm font-medium text-foreground">
               {isAvatarSpeaking ? "🎤 Interviewer Speaking" : isRecording ? "Your Turn" : "⏸️ Ready"}
             </span>
           </div>
 
           {/* Question Counter */}
           <div className="absolute top-5 lg:top-10 right-5 lg:right-10 z-20">
-            <span className="inline-flex items-center rounded-md bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800">
+            <span className="inline-flex items-center rounded-md bg-info/14 px-2.5 py-0.5 text-sm font-medium text-info">
               Q {currentQuestionIndex + 1}/{questions.length}
             </span>
           </div>
@@ -341,7 +341,7 @@ export default function AvatarVideoInterview({
               {/* Speaking indicator */}
               {isAvatarSpeaking && (
                 <div className="absolute bottom-2 left-2 flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                   <span className="text-xs text-white font-medium">Speaking</span>
                 </div>
               )}
@@ -363,10 +363,10 @@ export default function AvatarVideoInterview({
         {isRecording && transcript && (
           <div className="absolute bottom-20 left-3 right-3 z-20 bg-black/80 backdrop-blur-sm p-4 rounded-xl max-h-32 overflow-y-auto border border-white/20">
             <div className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mt-2 flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-destructive rounded-full animate-pulse mt-2 flex-shrink-0"></div>
               <div className="flex-1">
                 <p className="text-white text-sm leading-relaxed">{transcript}</p>
-                <p className="text-gray-300 text-xs mt-1">{transcript.length} characters</p>
+                <p className="text-muted-foreground text-xs mt-1">{transcript.length} characters</p>
               </div>
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function AvatarVideoInterview({
               </div>
               <button
                 onClick={stopRecording}
-                className="flex h-12 px-6 items-center justify-center rounded-full bg-red-500 text-white font-semibold hover:bg-red-600 ring-4 ring-white active:scale-95 scale-100 duration-75 shadow-lg"
+                className="flex h-12 px-6 items-center justify-center rounded-full bg-destructive text-white font-semibold hover:bg-destructive/90 ring-4 ring-white active:scale-95 scale-100 duration-75 shadow-lg"
               >
                 Submit Answer
               </button>

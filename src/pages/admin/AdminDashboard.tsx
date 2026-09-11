@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     if (value == null) return null;
     const isUp = value >= 0;
     return (
-      <span className={`inline-flex items-center gap-1 text-xs font-medium ${isUp ? "text-green-600" : "text-red-500"}`}>
+      <span className={`inline-flex items-center gap-1 text-xs font-medium ${isUp ? "text-success" : "text-destructive"}`}>
         {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
         {isUp ? "+" : ""}{value}%
       </span>
@@ -43,14 +43,14 @@ const AdminDashboard = () => {
   };
 
   const cards = [
-    { label: "Total Users", value: stats?.totalUsers ?? "—", icon: Users, color: "text-blue-500 bg-blue-500/10", trend: stats?.trends?.users },
-    { label: "Active Jobs", value: stats?.activeJobs ?? "—", icon: Briefcase, color: "text-green-500 bg-green-500/10", trend: stats?.trends?.jobs },
-    { label: "Applications", value: stats?.totalApplications ?? "—", icon: FileText, color: "text-purple-500 bg-purple-500/10", trend: stats?.trends?.applications },
-    { label: "Revenue", value: stats?.revenue != null ? `₹${Number(stats.revenue).toLocaleString()}` : "—", icon: DollarSign, color: "text-amber-500 bg-amber-500/10" },
-    { label: "Companies", value: stats?.totalCompanies ?? "—", icon: Building2, color: "text-indigo-500 bg-indigo-500/10" },
-    { label: "Candidates", value: stats?.totalCandidates ?? "—", icon: UserCheck, color: "text-teal-500 bg-teal-500/10" },
-    { label: "Interviews", value: stats?.totalInterviews ?? "—", icon: Calendar, color: "text-pink-500 bg-pink-500/10" },
-    { label: "Active Subs", value: stats?.activeSubscriptions ?? "—", icon: CreditCard, color: "text-orange-500 bg-orange-500/10" },
+    { label: "Total Users", value: stats?.totalUsers ?? "—", icon: Users, color: "text-info bg-info/10", trend: stats?.trends?.users },
+    { label: "Active Jobs", value: stats?.activeJobs ?? "—", icon: Briefcase, color: "text-success bg-success/10", trend: stats?.trends?.jobs },
+    { label: "Applications", value: stats?.totalApplications ?? "—", icon: FileText, color: "text-primary bg-primary/10", trend: stats?.trends?.applications },
+    { label: "Revenue", value: stats?.revenue != null ? `₹${Number(stats.revenue).toLocaleString()}` : "—", icon: DollarSign, color: "text-warning bg-warning/10" },
+    { label: "Companies", value: stats?.totalCompanies ?? "—", icon: Building2, color: "text-primary bg-primary/10" },
+    { label: "Candidates", value: stats?.totalCandidates ?? "—", icon: UserCheck, color: "text-success bg-success/10" },
+    { label: "Interviews", value: stats?.totalInterviews ?? "—", icon: Calendar, color: "text-primary bg-primary/10" },
+    { label: "Active Subs", value: stats?.activeSubscriptions ?? "—", icon: CreditCard, color: "text-warning bg-warning/10" },
   ];
 
   const activityIcons: Record<string, typeof UserPlus> = {
@@ -107,17 +107,17 @@ const AdminDashboard = () => {
                         <span>{m.users}u / {m.jobs}j / {m.applications}a</span>
                       </div>
                       <div className="flex gap-1 h-4">
-                        <div className="bg-blue-500 rounded-sm" style={{ width: `${(m.users / max) * 100}%`, minWidth: m.users > 0 ? '4px' : '0' }} title={`${m.users} users`} />
-                        <div className="bg-green-500 rounded-sm" style={{ width: `${(m.jobs / max) * 100}%`, minWidth: m.jobs > 0 ? '4px' : '0' }} title={`${m.jobs} jobs`} />
-                        <div className="bg-purple-500 rounded-sm" style={{ width: `${(m.applications / max) * 100}%`, minWidth: m.applications > 0 ? '4px' : '0' }} title={`${m.applications} applications`} />
+                        <div className="bg-info rounded-sm" style={{ width: `${(m.users / max) * 100}%`, minWidth: m.users > 0 ? '4px' : '0' }} title={`${m.users} users`} />
+                        <div className="bg-success rounded-sm" style={{ width: `${(m.jobs / max) * 100}%`, minWidth: m.jobs > 0 ? '4px' : '0' }} title={`${m.jobs} jobs`} />
+                        <div className="bg-primary rounded-sm" style={{ width: `${(m.applications / max) * 100}%`, minWidth: m.applications > 0 ? '4px' : '0' }} title={`${m.applications} applications`} />
                       </div>
                     </div>
                   );
                 })}
                 <div className="flex gap-4 text-xs text-muted-foreground pt-2">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-blue-500" /> Users</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-green-500" /> Jobs</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-500" /> Applications</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-info" /> Users</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-success" /> Jobs</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-primary" /> Applications</span>
                 </div>
               </div>
             </CardContent>

@@ -115,36 +115,36 @@
 //       label: "Skip the call",
 //       icon: SkipForward,
 //       description: "Move to Phone Screening without calling",
-//       color: "text-zinc-400",
-//       activeBg: "bg-zinc-500/8 border-zinc-400/40",
-//       activeIcon: "text-zinc-300",
+//       color: "text-muted-foreground",
+//       activeBg: "bg-muted-foreground/8 border-border-strong/40",
+//       activeIcon: "text-muted-foreground",
 //     },
 //     {
 //       value: "now" as const,
 //       label: "Call immediately",
 //       icon: Zap,
 //       description: "Start the AI screening call right now",
-//       color: "text-emerald-400",
-//       activeBg: "bg-emerald-500/8 border-emerald-400/40",
-//       activeIcon: "text-emerald-400",
+//       color: "text-success",
+//       activeBg: "bg-success/8 border-success/40",
+//       activeIcon: "text-success",
 //     },
 //     {
 //       value: "1hour" as const,
 //       label: "Call in 1 hour",
 //       icon: Clock,
 //       description: "Schedule the call for 1 hour from now",
-//       color: "text-blue-400",
-//       activeBg: "bg-blue-500/8 border-blue-400/40",
-//       activeIcon: "text-blue-400",
+//       color: "text-info",
+//       activeBg: "bg-info/8 border-info/40",
+//       activeIcon: "text-info",
 //     },
 //     {
 //       value: "2hours" as const,
 //       label: "Call in 2 hours",
 //       icon: Clock,
 //       description: "Schedule the call for 2 hours from now",
-//       color: "text-indigo-400",
-//       activeBg: "bg-indigo-500/8 border-indigo-400/40",
-//       activeIcon: "text-indigo-400",
+//       color: "text-primary",
+//       activeBg: "bg-primary/8 border-primary/40",
+//       activeIcon: "text-primary",
 //     },
 //   ];
 
@@ -327,7 +327,7 @@
 //                     type="button"
 //                     onClick={handleAiGenerate}
 //                     disabled={generating}
-//                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-dashed border-violet-400/40 bg-violet-500/6 hover:bg-violet-500/10 text-violet-400 text-sm font-semibold transition-all disabled:opacity-50"
+//                     className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-dashed border-primary/40 bg-primary/6 hover:bg-primary/10 text-primary text-sm font-semibold transition-all disabled:opacity-50"
 //                   >
 //                     <Sparkles className={`w-4 h-4 ${generating ? "animate-spin" : ""}`} />
 //                     {generating ? "Generating questions…" : "Auto-generate with AI"}
@@ -358,7 +358,7 @@
 //                           type="button"
 //                           onClick={() => handleRemoveQuestion(index)}
 //                           disabled={questions.length <= 1}
-//                           className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-400 hover:bg-red-500/8 transition-all disabled:opacity-30 flex-shrink-0"
+//                           className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-all disabled:opacity-30 flex-shrink-0"
 //                         >
 //                           <X className="w-3.5 h-3.5" />
 //                         </button>
@@ -507,10 +507,10 @@ export const CallConfirmationDialog = ({
   };
 
   const callOptions = [
-    { value: "skip"   as const, label: "Skip the call",    icon: SkipForward, desc: "Move without an AI call",      active: "bg-zinc-50 border-zinc-300 ring-zinc-200",    icon_: "text-zinc-500",    dot: "bg-zinc-400"    },
-    { value: "now"    as const, label: "Call immediately", icon: Zap,         desc: "Start AI screening right now", active: "bg-emerald-50 border-emerald-300 ring-emerald-200", icon_: "text-emerald-600", dot: "bg-emerald-500" },
-    { value: "1hour"  as const, label: "In 1 hour",        icon: Clock,       desc: "Schedule 1 hr from now",       active: "bg-blue-50 border-blue-300 ring-blue-200",    icon_: "text-blue-600",    dot: "bg-blue-500"    },
-    { value: "2hours" as const, label: "In 2 hours",       icon: Clock,       desc: "Schedule 2 hrs from now",      active: "bg-indigo-50 border-indigo-300 ring-indigo-200", icon_: "text-indigo-600",  dot: "bg-indigo-500"  },
+    { value: "skip"   as const, label: "Skip the call",    icon: SkipForward, desc: "Move without an AI call",      active: "bg-surface-2 border-border ring-zinc-200",    icon_: "text-muted-foreground",    dot: "bg-muted-foreground"    },
+    { value: "now"    as const, label: "Call immediately", icon: Zap,         desc: "Start AI screening right now", active: "bg-success/10 border-success ring-emerald-200", icon_: "text-success", dot: "bg-success" },
+    { value: "1hour"  as const, label: "In 1 hour",        icon: Clock,       desc: "Schedule 1 hr from now",       active: "bg-info/10 border-info ring-blue-200",    icon_: "text-info",    dot: "bg-info"    },
+    { value: "2hours" as const, label: "In 2 hours",       icon: Clock,       desc: "Schedule 2 hrs from now",      active: "bg-primary/10 border-primary ring-indigo-200", icon_: "text-primary",  dot: "bg-primary"  },
   ];
 
   return (
@@ -554,7 +554,7 @@ export const CallConfirmationDialog = ({
                         ${isActive ? `${opt.active} ring-1` : "bg-card border-border hover:bg-muted/30 hover:border-border/70"}`}
                     >
                       <div className={`w-7 h-7 rounded-lg flex items-center justify-center mb-2.5 mx-auto
-                        ${isActive ? "bg-white/90 border border-current/10" : "bg-muted/60"}`}>
+                        ${isActive ? "bg-surface/90 border border-current/10" : "bg-muted/60"}`}>
                         <Icon className={`w-3.5 h-3.5 ${isActive ? opt.icon_ : "text-muted-foreground"}`} />
                       </div>
                       <p className={`text-xs font-bold leading-tight ${isActive ? "text-foreground" : "text-foreground/80"}`}>
@@ -584,34 +584,34 @@ export const CallConfirmationDialog = ({
                   onClick={() => setQuestionsOpen(v => !v)}
                   className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all duration-150
                     ${questionsOpen
-                      ? "bg-violet-50 border-violet-200"
+                      ? "bg-primary/10 border-primary/20"
                       : "bg-card border-border hover:bg-muted/20 hover:border-border/70"
                     }`}
                 >
                   {/* Icon */}
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
-                    ${questionsOpen ? "bg-violet-100 border border-violet-200" : "bg-muted/60"}`}>
-                    <Bot className={`w-4 h-4 ${questionsOpen ? "text-violet-600" : "text-muted-foreground"}`} />
+                    ${questionsOpen ? "bg-primary/14 border border-primary/20" : "bg-muted/60"}`}>
+                    <Bot className={`w-4 h-4 ${questionsOpen ? "text-primary" : "text-muted-foreground"}`} />
                   </div>
 
                   {/* Text */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className={`text-sm font-bold leading-none ${questionsOpen ? "text-violet-700" : "text-foreground"}`}>
+                      <p className={`text-sm font-bold leading-none ${questionsOpen ? "text-primary" : "text-foreground"}`}>
                         Screening Questions
                       </p>
                       {savedCount > 0 && !questionsOpen && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700 border border-violet-200">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/14 text-primary border border-primary/20">
                           {savedCount} saved
                         </span>
                       )}
                       {savedCount === 0 && !questionsOpen && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20">
                           optional
                         </span>
                       )}
                     </div>
-                    <p className={`text-xs mt-1 leading-snug ${questionsOpen ? "text-violet-500" : "text-muted-foreground"}`}>
+                    <p className={`text-xs mt-1 leading-snug ${questionsOpen ? "text-primary" : "text-muted-foreground"}`}>
                       {questionsOpen
                         ? "AI will ask these questions verbatim during the call"
                         : "Customize what AI asks · tap to edit"
@@ -621,7 +621,7 @@ export const CallConfirmationDialog = ({
 
                   {/* Arrow */}
                   <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-colors
-                    ${questionsOpen ? "bg-violet-100 text-violet-600" : "bg-muted/50 text-muted-foreground"}`}>
+                    ${questionsOpen ? "bg-primary/14 text-primary" : "bg-muted/50 text-muted-foreground"}`}>
                     {questionsOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </div>
                 </button>
@@ -655,14 +655,14 @@ export const CallConfirmationDialog = ({
 
                 {/* ── Expanded editor ── */}
                 {questionsOpen && (
-                  <div className="rounded-xl border border-violet-200 bg-violet-50/20 overflow-hidden anim-down">
+                  <div className="rounded-xl border border-primary/20 bg-primary/10/20 overflow-hidden anim-down">
 
                     {/* AI generate */}
-                    <div className="px-4 pt-4 pb-3 border-b border-violet-100/80">
+                    <div className="px-4 pt-4 pb-3 border-b border-primary/14/80">
                       <button
                         onClick={generate}
                         disabled={generating}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-violet-200 bg-white hover:bg-violet-50 text-violet-700 text-xs font-bold transition-all disabled:opacity-50 shadow-sm"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-primary/20 bg-surface hover:bg-violet-50 text-primary text-xs font-bold transition-all disabled:opacity-50 shadow-sm"
                       >
                         {generating
                           ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -676,23 +676,23 @@ export const CallConfirmationDialog = ({
                     <div className="px-4 py-3.5 space-y-2 max-h-[200px] overflow-y-auto">
                       {loadingQ ? (
                         <div className="space-y-2">
-                          {[1,2,3].map(i => <div key={i} className="h-8 bg-violet-100/80 rounded-lg animate-pulse" />)}
+                          {[1,2,3].map(i => <div key={i} className="h-8 bg-primary/14/80 rounded-lg animate-pulse" />)}
                         </div>
                       ) : questions.map((q, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-violet-300 w-4 text-center flex-shrink-0 select-none">
+                          <span className="text-[10px] font-black text-primary w-4 text-center flex-shrink-0 select-none">
                             {i + 1}
                           </span>
                           <Input
                             placeholder={`Question ${i + 1}…`}
                             value={q}
                             onChange={e => changeQ(i, e.target.value)}
-                            className="flex-1 h-8 text-xs bg-white border-violet-200 focus:border-violet-400 placeholder:text-muted-foreground/40"
+                            className="flex-1 h-8 text-xs bg-surface border-primary/20 focus:border-primary placeholder:text-muted-foreground/40"
                           />
                           <button
                             onClick={() => removeQ(i)}
                             disabled={questions.length <= 1}
-                            className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-25 flex-shrink-0"
+                            className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-red-50 transition-all disabled:opacity-25 flex-shrink-0"
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -701,10 +701,10 @@ export const CallConfirmationDialog = ({
                     </div>
 
                     {/* Editor footer */}
-                    <div className="px-4 py-3 border-t border-violet-100/80 flex items-center justify-between gap-3 bg-white/40">
+                    <div className="px-4 py-3 border-t border-primary/14/80 flex items-center justify-between gap-3 bg-surface/40">
                       <button
                         onClick={() => setQuestions([...questions, ""])}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Add question
@@ -713,7 +713,7 @@ export const CallConfirmationDialog = ({
                         size="sm"
                         onClick={saveQ}
                         disabled={savingQ}
-                        className="h-7 text-xs px-3 bg-violet-600 hover:bg-violet-500 text-white"
+                        className="h-7 text-xs px-3 bg-primary hover:bg-primary/90 text-white"
                       >
                         {savingQ
                           ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" />

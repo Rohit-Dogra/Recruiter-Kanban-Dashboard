@@ -1,252 +1,275 @@
-import { useState } from "react";
-import { Brain, Sun, Moon, Menu, X, Home, LayoutDashboard } from "lucide-react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { ArrowRight, LayoutDashboard, Menu, Moon, Sun, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { Logo } from "@/components/brand/Logo";
+import { cn } from "@/lib/utils";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MARKETING HEADER
+   A floating glass command bar rather than a full-width band: it detaches from
+   the top edge on scroll, so the page reads as content moving underneath a
+   persistent control surface.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+interface NavItem {
+  label: string;
+  /** Section id on the landing page, or a route. */
+  to?: string;
+  section?: string;
+  page?: string;
+}
+
+const NAV: NavItem[] = [
+  { label: "Features", to: "/features" },
+  { label: "Pipeline", section: "pipeline" },
+  { label: "Analytics", section: "analytics" },
+  { label: "Pricing", page: "/features", section: "pricing" },
+];
 
 const Header = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
   const { isAuthenticated, userType } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen]   = useState(false);
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const isDark    = theme === "dark";
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const getDashboardPath = () => {
-    if (userType === "admin") return "/admin";
-    if (userType === "candidate") return "/candidate/dashboard";
-    return "/dashboard";
-  };
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 12));
 
-  // Navigate to / and scroll to section (for Pipeline & Analytics)
-  const goToIndexSection = (hash: string) => {
-    setMobileMenuOpen(false);
-    if (location.pathname === "/") {
-      // Already on landing page — just scroll
-      const el = document.getElementById(hash);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+  // Lock the page behind the mobile sheet.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => setMobileOpen(false), [location.pathname]);
+
+  const dashboardPath =
+    userType === "admin" ? "/admin" : userType === "candidate" ? "/candidate/dashboard" : "/dashboard";
+
+  const scrollToSection = (id: string, page = "/") => {
+    setMobileOpen(false);
+    const go = () => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (location.pathname === page) {
+      go();
     } else {
-      // Navigate to landing page then scroll
-      navigate("/");
-      setTimeout(() => {
-        const el = document.getElementById(hash);
-        if (el) el.scrollIntoView({ behavior: "smooth" });
-      }, 300);
+      navigate(page);
+      window.setTimeout(go, 320);
     }
   };
 
-  const navLinks = [
-    {
-      label: "Features",
-      action: () => { setMobileMenuOpen(false); navigate("/features"); },
-    },
-    {
-      label: "Pipeline",
-      action: () => goToIndexSection("pipeline"),
-    },
-    {
-      label: "Analytics",
-      action: () => goToIndexSection("analytics"),
-    },
-    {
-      label: "Pricing",
-      // Opens FeaturesPage and scrolls to pricing section
-      action: () => {
-        setMobileMenuOpen(false);
-        if (location.pathname === "/features") {
-          const el = document.getElementById("pricing");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        } else {
-          navigate("/features");
-          setTimeout(() => {
-            const el = document.getElementById("pricing");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-          }, 300);
-        }
-      },
-    },
-  ];
+  const handleNav = (item: NavItem) => {
+    if (item.to) {
+      setMobileOpen(false);
+      navigate(item.to);
+      return;
+    }
+    scrollToSection(item.section!, item.page ?? "/");
+  };
+
+  const isActive = (item: NavItem) => item.to != null && location.pathname === item.to;
 
   return (
-      <header
-        className={`w-full backdrop-blur-xl border-b sticky top-0 z-50 transition-colors duration-300 ${
-          isDark ? "bg-background/80 border-border" : "bg-background/80 border-border"
-        }`}
+    <>
+      {/* Skip link — the first stop for keyboard users */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[var(--radius-md)] focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
       >
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+        Skip to content
+      </a>
 
-            {/* ── Logo → Landing page ── */}
-            <Link to="/" className="no-underline">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-xl shadow-[0_0_16px_rgba(59,130,246,0.25)]">
-                  <Brain className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1
-                    className={`text-lg font-black tracking-tight transition-colors ${isDark ? "text-white" : "text-zinc-900"}`}
-                    style={{ fontFamily: "'Syne', sans-serif" }}
-                  >
-                    HirerMind
-                  </h1>
-                  <p className={`text-[10px] tracking-widest uppercase ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
-                    AI Recruitment
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            {/* ── Desktop Nav ── */}
-            <nav className="hidden md:flex items-center space-x-1">
-
-              {/* Home button → Landing page */}
-              <Link
-                to="/"
-                title="Home — Landing Page"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all no-underline ${
-                  location.pathname === "/"
-                    ? (isDark ? "bg-zinc-800 text-white" : "bg-zinc-100 text-zinc-900")
-                    : (isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800/60" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/60")
-                }`}
-              >
-                <Home className="w-3.5 h-3.5" />
-                <span>Home</span>
-              </Link>
-
-              {/* Divider */}
-              <div className={`w-px h-4 mx-1 ${isDark ? "bg-zinc-700" : "bg-zinc-200"}`} />
-
-              {/* Nav links */}
-              {navLinks.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={item.action}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isDark
-                      ? "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
-                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/60"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-
-            {/* ── Right actions ── */}
-            <div className="flex items-center gap-3">
-
-              {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-all duration-200 ${
-                  isDark
-                    ? "border-zinc-700 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-500"
-                    : "border-zinc-200 bg-zinc-50 text-zinc-500 hover:text-zinc-900 hover:border-zinc-300"
-                }`}
-                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
-
-              {/* Login / Dashboard */}
-              {isAuthenticated ? (
-                <Link to={getDashboardPath()} className="no-underline">
-                  <button
-                    className="text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_28px_rgba(59,130,246,0.5)] inline-flex items-center gap-2"
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </button>
-                </Link>
-              ) : (
-                <>
-                  <Link to="/login" className="no-underline hidden sm:block">
-                    <button
-                      className={`text-sm font-semibold px-4 py-2 rounded-lg border transition-all duration-200 ${
-                        isDark
-                          ? "border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-500 bg-transparent"
-                          : "border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:border-zinc-300 bg-transparent"
-                      }`}
-                    >
-                      Login
-                    </button>
-                  </Link>
-                  <Link to="/signup" className="no-underline">
-                    <button
-                      className="text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_28px_rgba(59,130,246,0.5)]"
-                    >
-                      Get Started
-                    </button>
-                  </Link>
-                </>
-              )}
-
-              {/* Mobile toggle */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`md:hidden flex items-center justify-center w-9 h-9 rounded-lg ${isDark ? "text-zinc-400" : "text-zinc-500"}`}
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-
-          {/* ── Mobile Nav ── */}
-          {mobileMenuOpen && (
-            <div className={`md:hidden mt-4 pt-4 border-t space-y-1 ${isDark ? "border-zinc-800" : "border-zinc-100"}`}>
-
-              {/* Home */}
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2 text-sm font-medium py-2 px-2 rounded-lg no-underline transition-colors ${
-                  isDark ? "text-zinc-400 hover:text-white" : "text-zinc-500 hover:text-zinc-900"
-                }`}
-              >
-                <Home className="w-4 h-4" />
-                Home
-              </Link>
-
-              {/* Other nav */}
-              {navLinks.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={item.action}
-                  className={`block w-full text-left text-sm font-medium py-2 px-2 rounded-lg transition-colors ${
-                    isDark ? "text-zinc-400 hover:text-white" : "text-zinc-500 hover:text-zinc-900"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-
-              {/* Mobile Login / Dashboard */}
-              {isAuthenticated ? (
-                <Link
-                  to={getDashboardPath()}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-2 text-sm font-medium py-2 px-2 rounded-lg no-underline transition-colors ${
-                    isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"
-                  }`}
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
-                </Link>
-              ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block text-sm font-medium py-2 px-2 no-underline transition-colors ${
-                    isDark ? "text-zinc-400 hover:text-white" : "text-zinc-500 hover:text-zinc-900"
-                  }`}
-                >
-                  Login
-                </Link>
-              )}
-            </div>
+      <motion.header
+        initial={{ y: -24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4"
+      >
+        <div
+          className={cn(
+            "container mx-auto flex items-center justify-between gap-3 rounded-[var(--radius-xl)] px-3 py-2.5 sm:px-4",
+            "transition-all duration-500 ease-expo",
+            scrolled
+              ? "glass border-border/60 shadow-lg"
+              : "border border-transparent bg-transparent shadow-none"
           )}
+        >
+          <Link to="/" className="shrink-0 no-underline" aria-label="Hyre — home">
+            <Logo />
+          </Link>
+
+          {/* ── Desktop nav ── */}
+          <nav className="hidden items-center gap-0.5 md:flex" aria-label="Main">
+            {NAV.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleNav(item)}
+                className={cn(
+                  "relative rounded-[var(--radius-sm)] px-3.5 py-2 text-[13px] font-medium transition-colors duration-200",
+                  isActive(item) ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {isActive(item) && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-0 -z-10 rounded-[var(--radius-sm)] bg-secondary"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* ── Actions ── */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+              className="relative overflow-hidden"
+              data-compact
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={isDark ? "sun" : "moon"}
+                  initial={{ y: 14, opacity: 0, rotate: -60 }}
+                  animate={{ y: 0, opacity: 1, rotate: 0 }}
+                  exit={{ y: -14, opacity: 0, rotate: 60 }}
+                  transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex"
+                >
+                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </motion.span>
+              </AnimatePresence>
+            </Button>
+
+            {isAuthenticated ? (
+              <Magnetic strength={6} className="hidden sm:inline-flex">
+                <Button asChild variant="hero" size="sm" pill>
+                  <Link to={dashboardPath}>
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </Button>
+              </Magnetic>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                  <Link to="/login">Log in</Link>
+                </Button>
+                <Magnetic strength={6} className="hidden sm:inline-flex">
+                  <Button asChild variant="hero" size="sm" pill>
+                    <Link to="/signup">
+                      Get started
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </Magnetic>
+              </>
+            )}
+
+            <Button
+              variant="outline"
+              size="icon-sm"
+              className="md:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              data-compact
+            >
+              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
-      </header>
+      </motion.header>
+
+      {/* ── Mobile sheet — full-height, thumb-reachable, staggered in ── */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            id="mobile-nav"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 md:hidden"
+          >
+            <button
+              className="absolute inset-0 h-full w-full bg-[hsl(250_40%_6%/0.6)] backdrop-blur-md"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              tabIndex={-1}
+            />
+
+            <motion.nav
+              initial={{ y: "-100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 34 }}
+              className="glass-strong absolute inset-x-0 top-0 rounded-b-[var(--radius-2xl)] px-5 pb-8 pt-24 shadow-xl"
+              aria-label="Mobile"
+            >
+              <motion.ul
+                initial="hidden"
+                animate="show"
+                variants={{ show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } } }}
+                className="space-y-1"
+              >
+                {NAV.map((item) => (
+                  <motion.li
+                    key={item.label}
+                    variants={{ hidden: { opacity: 0, x: -16 }, show: { opacity: 1, x: 0 } }}
+                  >
+                    <button
+                      onClick={() => handleNav(item)}
+                      className="flex w-full items-center justify-between rounded-[var(--radius-md)] px-4 py-3.5 text-left font-display text-lg font-medium text-foreground transition-colors hover:bg-secondary"
+                    >
+                      {item.label}
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </motion.li>
+                ))}
+              </motion.ul>
+
+              <div className="mt-6 grid gap-2.5 border-t border-border/70 pt-6">
+                {isAuthenticated ? (
+                  <Button asChild variant="hero" size="lg">
+                    <Link to={dashboardPath}>
+                      <LayoutDashboard className="h-4 w-4" />
+                      Go to dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button asChild variant="hero" size="lg">
+                      <Link to="/signup">
+                        Get started free
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="lg">
+                      <Link to="/login">Log in</Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </motion.nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

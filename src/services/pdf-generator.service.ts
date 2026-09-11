@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { BRAND } from "@/lib/brand";
 
 interface OfferLetterData {
   candidateName: string;
@@ -39,7 +40,7 @@ class PDFGeneratorService {
       this.applyTemplateStyle(pdf, template.style);
       
       // Add company header
-      this.addCompanyHeader(pdf, data.companyName || 'HirerMind');
+      this.addCompanyHeader(pdf, data.companyName || BRAND.legalName);
       
       // Add offer letter content
       this.addOfferContent(pdf, data);
@@ -81,11 +82,11 @@ class PDFGeneratorService {
     pdf.setTextColor(0, 0, 0);
     pdf.setFontSize(18);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('HIRERMIND', 80, 28);
+    pdf.text(BRAND.nameUpper, 80, 28);
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     pdf.text('Innovative Recruitment Solutions', 80, 35);
-    pdf.text('contact@hirermind.com | www.hirermind.com', 80, 40);
+    pdf.text(`${BRAND.email.contact} | ${BRAND.domain}`, 80, 40);
   }
 
   private addOfferContent(pdf: jsPDF, data: OfferLetterData) {
@@ -118,7 +119,7 @@ class PDFGeneratorService {
     
     // Main content
     const content = [
-      `We are pleased to offer you the position of ${data.jobTitle} at ${data.companyName || 'HirerMind'}.`,
+      `We are pleased to offer you the position of ${data.jobTitle} at ${data.companyName || BRAND.legalName}.`,
       '',
       'Position Details:',
       `• Job Title: ${data.jobTitle}`,
@@ -140,7 +141,7 @@ class PDFGeneratorService {
       '',
       'Best regards,',
       'HR Team',
-      data.companyName || 'HirerMind'
+      data.companyName || BRAND.legalName
     ];
     
     content.forEach(line => {

@@ -1,458 +1,337 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Briefcase,
-  FileSearch,
-  Brain,
+  Activity,
+  Award,
   BarChart3,
-  Phone,
-  Code2,
-  Shield,
-  Zap,
-  Star,
+  Brain,
+  Briefcase,
   CheckCircle,
-  Mail,
+  Code2,
   Eye,
+  FileSearch,
   Gauge,
+  Mail,
   MessageSquare,
+  Phone,
+  Shield,
+  Star,
   Target,
   TrendingUp,
-  Award,
-  Activity,
+  Zap,
+  type LucideIcon,
 } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { motion } from "framer-motion";
 
-// ─── Main pipeline features ───────────────────────────────────────────────────
-const pipelineFeatures = [
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
+import { Spotlight } from "@/components/motion/Magnetic";
+import { SectionHeading } from "@/components/marketing/SectionHeading";
+import { cn } from "@/lib/utils";
+import { EASE } from "@/lib/motion";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WHAT THE PLATFORM DOES
+   Three movements:
+     1. The pipeline, as an interactive stepper you can click through.
+     2. A bento grid of supporting capabilities, sized by importance.
+     3. The ten scoring dimensions, as a dense chip wall.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+interface Stage {
+  step: string;
+  icon: LucideIcon;
+  title: string;
+  badge: string;
+  description: string;
+  detail: string;
+  tone: string;
+}
+
+const STAGES: Stage[] = [
   {
     step: "01",
     icon: Briefcase,
-    title: "Job Posting",
-    description:
-      "Company posts a job with required skills, experience, and JD. Auto-tagging + multi-platform publishing.",
+    title: "Job posting",
     badge: "Start",
-    accent: "#3b82f6",
+    description: "Post a role with required skills, experience and JD.",
+    detail: "Auto-tagging and multi-platform publishing put the role in front of the right candidates immediately.",
+    tone: "var(--brand-indigo)",
   },
   {
     step: "02",
     icon: FileSearch,
-    title: "Candidate Applies",
-    description:
-      "Candidate uploads resume & applies. System parses resume instantly — skills, education, experience extracted.",
+    title: "Candidate applies",
     badge: "Apply",
-    accent: "#6366f1",
+    description: "Résumés are parsed the moment they land.",
+    detail: "Skills, education and experience are extracted structurally — no manual data entry, no lost applications.",
+    tone: "var(--brand-violet)",
   },
   {
     step: "03",
     icon: Gauge,
-    title: "ATS Score & Match",
-    description:
-      "AI generates ATS score out of 100. Shows matched skills, missing skills, and a hire/no-hire recommendation for the company.",
+    title: "ATS score & match",
     badge: "AI",
-    accent: "#8b5cf6",
+    description: "Every applicant gets a score out of 100.",
+    detail: "Matched skills, missing skills and a hire / no-hire recommendation, with the reasoning shown to your team.",
+    tone: "var(--brand-fuchsia)",
   },
   {
     step: "04",
     icon: Phone,
-    title: "AI Calling Round",
-    description:
-      "If shortlisted, AI calls the candidate. Asks basic screening questions, evaluates communication, generates a deep report.",
-    badge: "AI Call",
-    accent: "#06b6d4",
+    title: "AI calling round",
+    badge: "AI call",
+    description: "Shortlisted candidates get a screening call.",
+    detail: "The AI asks basic screening questions, evaluates communication, and returns a full transcript and report.",
+    tone: "var(--brand-cyan)",
   },
   {
     step: "05",
     icon: Code2,
-    title: "AI Technical Interview",
-    description:
-      "AI conducts a full technical interview — checks domain knowledge, problem-solving, communication. Full scored report generated.",
+    title: "AI technical interview",
     badge: "Tech",
-    accent: "#10b981",
+    description: "A complete technical interview, scored.",
+    detail: "Domain knowledge, problem solving and communication, each scored with evidence from the conversation.",
+    tone: "var(--success)",
   },
   {
     step: "06",
     icon: Award,
-    title: "Offer Letter",
-    description:
-      "Hired candidates receive a branded digital offer letter with e-signature and onboarding tracking built in.",
+    title: "Offer letter",
     badge: "Hire",
-    accent: "#f59e0b",
+    description: "Branded digital offers with e-signature.",
+    detail: "Offer letters go out with onboarding tracking built in, so nothing stalls between yes and day one.",
+    tone: "var(--warning)",
   },
 ];
 
-// ─── Supporting features ──────────────────────────────────────────────────────
-const supportingFeatures = [
-  {
-    icon: Mail,
-    title: "Candidate Email Alerts",
-    description: "Auto email at every stage — applied, shortlisted, interview scheduled, offer sent.",
-    accent: "#3b82f6",
-    badge: "Auto",
-  },
+const SUPPORTING = [
   {
     icon: BarChart3,
-    title: "Analytics Dashboard",
-    description: "Time-to-hire, source effectiveness, funnel drop-off, and performance metrics.",
-    accent: "#f59e0b",
+    title: "Analytics that answer questions",
+    description:
+      "Time-to-hire, source effectiveness, funnel drop-off and per-recruiter performance — the numbers your leadership actually asks for.",
     badge: "Insights",
-  },
-  {
-    icon: Shield,
-    title: "Enterprise Security",
-    description: "GDPR compliant, JWT + OAuth 2.0, 54 audit dimensions, encrypted storage.",
-    accent: "#ef4444",
-    badge: "Security",
+    span: "lg:col-span-2",
   },
   {
     icon: Zap,
-    title: "Bulk Hiring Engine",
-    description: "Process 1,000 candidates with same rigor as #1. Zero delay added per candidate.",
-    accent: "#10b981",
+    title: "Bulk hiring engine",
+    description: "Process 1,000 candidates with the same rigour as the first. Zero added delay per candidate.",
     badge: "Scale",
+    span: "",
+  },
+  {
+    icon: Mail,
+    title: "Candidate email alerts",
+    description: "Automatic mail at every stage — applied, shortlisted, interview scheduled, offer sent.",
+    badge: "Auto",
+    span: "",
+  },
+  {
+    icon: Shield,
+    title: "Enterprise security",
+    description: "GDPR compliant, JWT + OAuth 2.0, 54 audit dimensions, encrypted storage at rest and in transit.",
+    badge: "Security",
+    span: "lg:col-span-2",
   },
 ];
 
-// ─── AI Interview dimensions ──────────────────────────────────────────────────
-const scoringDimensions = [
-  { icon: Brain, label: "Technical Knowledge", desc: "Depth and accuracy of domain expertise", accent: "#3b82f6" },
-  { icon: MessageSquare, label: "Communication", desc: "Clarity, articulation, and coherence", accent: "#6366f1" },
-  { icon: Activity, label: "Engagement", desc: "Active participation and enthusiasm", accent: "#8b5cf6" },
-  { icon: Star, label: "Emotional Intelligence", desc: "Self-awareness, empathy, social skills", accent: "#06b6d4" },
-  { icon: CheckCircle, label: "Professionalism", desc: "Conduct, tone, and workplace readiness", accent: "#10b981" },
-  { icon: TrendingUp, label: "Confidence Level", desc: "Assurance in responses", accent: "#f59e0b" },
-  { icon: Gauge, label: "Speaking Pace", desc: "Rate of speech analysis", accent: "#f97316" },
-  { icon: Eye, label: "Eye Contact", desc: "Visual engagement (if video enabled)", accent: "#ec4899" },
-  { icon: Target, label: "Red Flags", desc: "Inconsistencies, evasion, concerning patterns", accent: "#ef4444" },
-  { icon: Award, label: "Overall Fit", desc: "Holistic assessment combining all dimensions", accent: "#22c55e" },
+const DIMENSIONS = [
+  { icon: Brain, label: "Technical knowledge", desc: "Depth and accuracy of domain expertise" },
+  { icon: MessageSquare, label: "Communication", desc: "Clarity, articulation and coherence" },
+  { icon: Activity, label: "Engagement", desc: "Active participation and enthusiasm" },
+  { icon: Star, label: "Emotional intelligence", desc: "Self-awareness, empathy, social skills" },
+  { icon: CheckCircle, label: "Professionalism", desc: "Conduct, tone and workplace readiness" },
+  { icon: TrendingUp, label: "Confidence level", desc: "Assurance in responses" },
+  { icon: Gauge, label: "Speaking pace", desc: "Rate of speech analysis" },
+  { icon: Eye, label: "Eye contact", desc: "Visual engagement, when video is enabled" },
+  { icon: Target, label: "Red flags", desc: "Inconsistencies, evasion, concerning patterns" },
+  { icon: Award, label: "Overall fit", desc: "Holistic assessment across every dimension" },
 ];
 
 const FeatureGrid = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  const [activeTab, setActiveTab] = useState<"pipeline" | "deepdive">("pipeline");
-
-  const bg = isDark ? "bg-background" : "bg-secondary";
-  const cardBg = isDark ? "bg-card" : "bg-card";
-  const border = isDark ? "border-border" : "border-border";
-  const textPrimary = isDark ? "text-foreground" : "text-foreground";
-  const textSecondary = isDark ? "text-muted-foreground" : "text-muted-foreground";
-  const textMuted = isDark ? "text-muted-foreground" : "text-muted-foreground";
-  const gridBg = isDark ? "bg-muted/40" : "bg-muted/60";
-  const hoverCard = isDark ? "hover:bg-secondary" : "hover:bg-secondary";
+  const [active, setActive] = useState(0);
+  const stage = STAGES[active];
 
   return (
-    <section className={`py-24 ${bg} relative overflow-hidden transition-colors duration-300`} id="features">
-      {/* Subtle grid */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: isDark
-            ? "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)"
-            : "linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
+    <section id="features" className="relative overflow-hidden py-20 sm:py-28">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-dots mask-fade-y opacity-40" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto">
+        <SectionHeading
+          eyebrow="The pipeline"
+          title="Six stages. One continuous system."
+          accentWord="One"
+          description="Each stage hands structured data to the next, so nothing is re-keyed and nothing falls through."
+        />
 
-        {/* ── Header ── */}
-        <div className="max-w-2xl mb-12">
-          <div
-            className={`inline-flex items-center gap-2 border text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6 ${
-              isDark ? "border-zinc-700 bg-zinc-900/60 text-zinc-400" : "border-zinc-200 bg-zinc-100 text-zinc-500"
-            }`}
-          >
-            Core Features
-          </div>
-          <h2
-            className={`text-4xl lg:text-5xl font-black leading-tight mb-4 ${textPrimary}`}
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            Everything You Need
-            <br />
-            <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
-              to Hire Smarter
-            </span>
-          </h2>
-          <p className={`text-lg ${textSecondary}`}>
-            AI-first recruitment automation. No shortcuts. No fatigue. No bias.
-          </p>
-        </div>
-
-        {/* ── Tab Toggle ── */}
-        <div
-          className={`inline-flex rounded-xl border p-1 mb-10 ${
-            isDark ? "border-zinc-800 bg-zinc-900/50" : "border-zinc-200 bg-zinc-100"
-          }`}
-        >
-          {(["pipeline", "deepdive"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200 ${
-                activeTab === tab
-                  ? "bg-blue-600 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-                  : isDark
-                  ? "text-zinc-400 hover:text-white"
-                  : "text-zinc-500 hover:text-zinc-900"
-              }`}
-            >
-              {tab === "pipeline" ? "🔄 Hiring Pipeline" : "🎤 AI Interview Deep Dive"}
-            </button>
-          ))}
-        </div>
-
-        {/* ═══════════════════════════════ PIPELINE TAB ═══════════════════════════════ */}
-        {activeTab === "pipeline" && (
-          <>
-            {/* Pipeline steps - glassmorphic cards with stagger */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              {pipelineFeatures.map((f, i) => {
-                const Icon = f.icon;
-                return (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.1 }}
-                    whileHover={{ scale: 1.02, y: -4 }}
-                    className={`group relative backdrop-blur-md rounded-2xl p-6 cursor-default transition-shadow duration-300 border ${
-                      isDark
-                        ? "bg-white/5 border-white/10 hover:border-white/20 hover:shadow-[0_8px_32px_rgba(59,130,246,0.15)]"
-                        : "bg-white/60 border-white/30 hover:border-white/50 hover:shadow-[0_8px_32px_rgba(59,130,246,0.1)]"
-                    }`}
+        {/* ── Interactive stepper ─────────────────────────────────────────── */}
+        <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,380px)_1fr] lg:gap-8">
+          {/* Step rail */}
+          <Stagger className="flex gap-2 overflow-x-auto pb-2 no-scrollbar lg:flex-col lg:overflow-visible lg:pb-0">
+            {STAGES.map((s, i) => {
+              const isActive = i === active;
+              return (
+                <StaggerItem key={s.step} className="shrink-0 lg:shrink">
+                  <button
+                    onClick={() => setActive(i)}
+                    aria-current={isActive}
+                    className={cn(
+                      "group relative flex w-56 items-center gap-3 rounded-[var(--radius-lg)] border p-3 text-left transition-all duration-300 ease-expo lg:w-full",
+                      isActive
+                        ? "border-primary/30 bg-surface shadow-md"
+                        : "border-border/60 bg-surface-2/50 hover:border-border-strong hover:bg-surface-2"
+                    )}
                   >
-                    {/* Top accent on hover */}
-                    <div
-                      className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{ background: `linear-gradient(90deg, transparent, ${f.accent}, transparent)` }}
-                    />
-
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <span className={`text-[11px] font-black tracking-widest ${textMuted}`}>{f.step}</span>
-                        <div
-                          className="flex items-center justify-center w-10 h-10 rounded-xl"
-                          style={{ background: `${f.accent}15`, border: `1px solid ${f.accent}30` }}
-                        >
-                          <Icon className="w-5 h-5" style={{ color: f.accent }} />
-                        </div>
-                      </div>
-                      <span
-                        className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded"
-                        style={{
-                          color: f.accent,
-                          background: `${f.accent}12`,
-                          border: `1px solid ${f.accent}25`,
-                        }}
-                      >
-                        {f.badge}
-                      </span>
-                    </div>
-
-                    <h3 className={`text-sm font-bold mb-2 group-hover:text-blue-400 transition-colors ${textPrimary}`}>
-                      {f.title}
-                    </h3>
-                    <p className={`text-xs leading-relaxed ${textMuted}`}>{f.description}</p>
-
-                    {/* Candidate email notification badge */}
-                    <div
-                      className={`mt-4 flex items-center gap-1.5 text-[10px] font-medium border rounded-md px-2 py-1 w-fit ${
-                        isDark
-                          ? "border-zinc-700/60 text-zinc-500 bg-zinc-900/40"
-                          : "border-zinc-200 text-zinc-400 bg-zinc-50"
-                      }`}
-                    >
-                      <Mail className="w-3 h-3" />
-                      Candidate notified via email
-                    </div>
-                    </motion.div>
-                );
-              })}
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {supportingFeatures.map((f, i) => {
-                const Icon = f.icon;
-                return (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.08 }}
-                    whileHover={{ scale: 1.02 }}
-                    className={`backdrop-blur-md rounded-2xl px-5 py-5 flex items-start gap-4 transition-all duration-300 group border ${
-                      isDark
-                        ? "bg-white/5 border-white/10 hover:border-white/20"
-                        : "bg-white/60 border-white/30 hover:border-white/50"
-                    }`}
-                  >
-                    <div
-                      className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg mt-0.5"
-                      style={{ background: `${f.accent}12`, border: `1px solid ${f.accent}22` }}
-                    >
-                      <Icon className="w-4 h-4" style={{ color: f.accent }} />
-                    </div>
-                    <div>
-                      <p className={`text-xs font-bold mb-1 ${textPrimary}`}>{f.title}</p>
-                      <p className={`text-[11px] leading-relaxed ${textMuted}`}>{f.description}</p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* ═══════════════════════════════ DEEP DIVE TAB ═══════════════════════════════ */}
-        {activeTab === "deepdive" && (
-          <div className="space-y-6">
-
-            {/* Intro card */}
-            <div
-              className={`rounded-2xl border p-8 relative overflow-hidden ${cardBg} ${border}`}
-              style={{ boxShadow: isDark ? "0 0 60px rgba(59,130,246,0.05)" : "0 0 40px rgba(59,130,246,0.04)" }}
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-400" />
-              <div className="max-w-3xl">
-                <div
-                  className={`inline-flex items-center gap-2 border text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4 ${
-                    isDark ? "border-blue-500/30 bg-blue-500/10 text-blue-400" : "border-blue-200 bg-blue-50 text-blue-600"
-                  }`}
-                >
-                  🎤 Deep Dive — AI Interviews That Actually Work
-                </div>
-                <h3
-                  className={`text-2xl lg:text-3xl font-black mb-3 ${textPrimary}`}
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  Video or voice, premium or basic —{" "}
-                  <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
-                    fine-tune to the job and budget.
-                  </span>
-                </h3>
-                <p className={`text-sm leading-relaxed max-w-2xl ${textSecondary}`}>
-                  Adaptive AI conversations, technical assessments, aptitude tests, and more. Not a chatbot —
-                  a sophisticated evaluation engine that scores 10+ dimensions per candidate.
-                </p>
-              </div>
-            </div>
-
-            {/* 10 Scoring dimensions */}
-            <div>
-              <h4
-                className={`text-xs font-bold tracking-widest uppercase mb-4 ${textMuted}`}
-              >
-                What We Score — 10+ Dimensions
-              </h4>
-              <div className={`grid grid-cols-2 lg:grid-cols-5 gap-px ${gridBg} rounded-2xl overflow-hidden border ${border}`}>
-                {scoringDimensions.map((d, i) => {
-                  const Icon = d.icon;
-                  return (
-                    <div
-                      key={i}
-                      className={`group ${cardBg} p-4 ${hoverCard} transition-all duration-200 relative`}
-                    >
-                      <div
-                        className="absolute bottom-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ background: `linear-gradient(90deg, transparent, ${d.accent}, transparent)` }}
+                    {isActive && (
+                      <motion.span
+                        layoutId="stage-indicator"
+                        className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-gradient-primary"
+                        transition={{ type: "spring", stiffness: 360, damping: 30 }}
                       />
-                      <div
-                        className="flex items-center justify-center w-8 h-8 rounded-lg mb-3"
-                        style={{ background: `${d.accent}14`, border: `1px solid ${d.accent}28` }}
-                      >
-                        <Icon className="w-4 h-4" style={{ color: d.accent }} />
-                      </div>
-                      <p className={`text-xs font-bold mb-1 ${textPrimary}`}>{d.label}</p>
-                      <p className={`text-[11px] leading-snug ${textMuted}`}>{d.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Interview tiers */}
-            <div>
-              <h4 className={`text-xs font-bold tracking-widest uppercase mb-4 ${textMuted}`}>
-                Customizable Interview Tiers
-              </h4>
-              <div className="grid md:grid-cols-3 gap-4">
-                {[
-                  {
-                    tier: "Premium",
-                    icon: "🎥",
-                    accent: "#6366f1",
-                    includes: "AI video interview + adaptive conversation + all assessments + deep behavioral analysis",
-                    ideal: "Software Architects, Engineering Leads, Executives",
-                  },
-                  {
-                    tier: "Standard",
-                    icon: "🎙️",
-                    accent: "#3b82f6",
-                    includes: "AI voice interview + technical or aptitude assessments + scoring",
-                    ideal: "Mid-level professionals, Analysts, Specialists",
-                  },
-                  {
-                    tier: "Essential",
-                    icon: "📋",
-                    accent: "#10b981",
-                    includes: "Voice-only + structured MCQ + typing/aptitude tests + automated scoring",
-                    ideal: "Call Center Associates, Data Entry, Support Staff",
-                  },
-                ].map((t, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-xl border p-5 transition-all duration-200 ${cardBg} ${border} hover:border-opacity-80`}
-                    style={{ borderTopColor: t.accent, borderTopWidth: "2px" }}
-                  >
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xl">{t.icon}</span>
-                      <span
-                        className="text-sm font-black"
-                        style={{ color: t.accent, fontFamily: "'Syne', sans-serif" }}
-                      >
-                        {t.tier}
-                      </span>
-                    </div>
-                    <p className={`text-xs leading-relaxed mb-3 ${textSecondary}`}>{t.includes}</p>
-                    <div
-                      className={`text-[10px] font-medium border rounded px-2 py-1 ${
-                        isDark ? "border-zinc-700 text-zinc-500" : "border-zinc-200 text-zinc-400"
-                      }`}
+                    )}
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] transition-transform duration-300 ease-spring group-hover:scale-105"
+                      style={{
+                        background: `hsl(${s.tone} / 0.12)`,
+                        color: `hsl(${s.tone})`,
+                      }}
                     >
-                      Ideal for: {t.ideal}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                      <s.icon className="h-4.5 w-4.5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                        {s.step} · {s.badge}
+                      </span>
+                      <span
+                        className={cn(
+                          "block truncate text-sm font-medium transition-colors",
+                          isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}
+                      >
+                        {s.title}
+                      </span>
+                    </span>
+                  </button>
+                </StaggerItem>
+              );
+            })}
+          </Stagger>
 
-            {/* Assessment types */}
-            <div>
-              <h4 className={`text-xs font-bold tracking-widest uppercase mb-4 ${textMuted}`}>
-                Assessment Types — Mix & Match
-              </h4>
+          {/* Detail panel */}
+          <Reveal direction="right" className="relative">
+            <div className="surface-card ring-gradient relative min-h-[320px] overflow-hidden p-7 sm:p-9">
               <div
-                className={`grid grid-cols-2 lg:grid-cols-5 gap-px ${gridBg} rounded-xl overflow-hidden border ${border}`}
-              >
-                {[
-                  { label: "Technical Questions", icon: "⚙️", desc: "Role-specific coding & domain knowledge" },
-                  { label: "Aptitude Tests", icon: "🧠", desc: "Logical reasoning & problem-solving" },
-                  { label: "Multiple Choice", icon: "☑️", desc: "Domain knowledge & situational judgment" },
-                  { label: "Typing Speed", icon: "⌨️", desc: "WPM & accuracy for admin roles" },
-                  { label: "Custom Assessments", icon: "🎯", desc: "Build your own question sets" },
-                ].map((a, i) => (
-                  <div key={i} className={`${cardBg} px-4 py-4 ${hoverCard} transition-colors`}>
-                    <span className="text-2xl block mb-2">{a.icon}</span>
-                    <p className={`text-xs font-bold mb-1 ${textPrimary}`}>{a.label}</p>
-                    <p className={`text-[11px] ${textMuted}`}>{a.desc}</p>
-                  </div>
-                ))}
+                aria-hidden
+                className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl transition-colors duration-700"
+                style={{ background: `hsl(${stage.tone} / 0.16)` }}
+              />
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={stage.step}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.32, ease: EASE.expo }}
+                  className="relative pb-10"
+                >
+                  <span
+                    className="font-display text-[5rem] font-semibold leading-none tracking-tighter opacity-15"
+                    style={{ color: `hsl(${stage.tone})` }}
+                  >
+                    {stage.step}
+                  </span>
+
+                  <h3 className="mt-2 text-display-sm font-semibold text-foreground">{stage.title}</h3>
+                  <p className="mt-3 max-w-lg text-base leading-relaxed text-foreground/80">{stage.description}</p>
+                  <p className="mt-2.5 max-w-lg text-sm leading-relaxed text-muted-foreground">{stage.detail}</p>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Progress through the pipeline */}
+              <div className="absolute inset-x-7 bottom-7 sm:inset-x-9 sm:bottom-9">
+                <div className="flex items-center gap-1.5">
+                  {STAGES.map((s, i) => (
+                    <button
+                      key={s.step}
+                      onClick={() => setActive(i)}
+                      aria-label={`Go to stage ${s.step}: ${s.title}`}
+                      className="group/dot h-6 flex-1"
+                    >
+                      <span
+                        className={cn(
+                          "block h-1 w-full rounded-full transition-all duration-400 ease-expo",
+                          i === active ? "bg-primary" : "bg-border group-hover/dot:bg-border-strong"
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          </Reveal>
+        </div>
+
+        {/* ── Supporting capabilities: bento ──────────────────────────────── */}
+        <div className="mt-24">
+          <SectionHeading
+            eyebrow="Built around it"
+            title="Everything the pipeline needs to run itself."
+            accentWord="itself."
+            align="left"
+          />
+
+          <Stagger gap={0.08} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {SUPPORTING.map((f) => (
+              <StaggerItem key={f.title} className={f.span}>
+                <article className="surface-card group relative h-full overflow-hidden p-6 transition-all duration-300 ease-expo hover:-translate-y-1 hover:border-primary/25 hover:shadow-lg">
+                  <Spotlight />
+                  <div className="relative flex items-start justify-between gap-4">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] bg-primary/10 text-primary transition-transform duration-300 ease-spring group-hover:scale-110 group-hover:-rotate-6">
+                      <f.icon className="h-5 w-5" />
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                      {f.badge}
+                    </span>
+                  </div>
+                  <h4 className="relative mt-5 font-display text-lg font-semibold tracking-tight text-foreground">
+                    {f.title}
+                  </h4>
+                  <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">{f.description}</p>
+                </article>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+
+        {/* ── Scoring dimensions ──────────────────────────────────────────── */}
+        <div className="mt-24">
+          <SectionHeading
+            eyebrow="Interview scoring"
+            title="Ten dimensions, every single interview."
+            accentWord="Ten"
+            description="The same rubric applied to everyone — which is what makes the scores comparable."
+          />
+
+          <Stagger gap={0.04} className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {DIMENSIONS.map((d, i) => (
+              <StaggerItem key={d.label}>
+                <div className="surface-card group h-full p-4 transition-all duration-300 ease-expo hover:-translate-y-1 hover:border-primary/25">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-secondary text-muted-foreground transition-colors duration-300 group-hover:bg-primary/12 group-hover:text-primary">
+                      <d.icon className="h-4 w-4" />
+                    </span>
+                    <span className="font-mono text-[10px] tabular-nums text-muted-foreground/60">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-[13px] font-medium leading-snug text-foreground">{d.label}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{d.desc}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
       </div>
     </section>
   );

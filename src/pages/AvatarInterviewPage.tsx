@@ -173,7 +173,7 @@ export default function AvatarInterviewPage() {
                     idx === currentQuestionIndex 
                       ? 'text-primary font-medium' 
                       : idx < currentQuestionIndex 
-                      ? 'text-green-600' 
+                      ? 'text-success' 
                       : 'text-muted-foreground'
                   }`}
                 >

@@ -349,13 +349,13 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
           )}
 
           {atsError && (
-            <Card className="bg-red-50 border-red-300">
+            <Card className="bg-destructive/10 border-destructive">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
-                  <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+                  <XCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-1" />
                   <div className="flex-1">
-                    <h3 className="font-bold text-red-900 mb-1">Unable to Load ATS Analysis</h3>
-                    <p className="text-sm text-red-800 mb-3">{atsError}</p>
+                    <h3 className="font-bold text-destructive mb-1">Unable to Load ATS Analysis</h3>
+                    <p className="text-sm text-destructive mb-3">{atsError}</p>
                     <div className="flex gap-2">
                       <Button 
                         variant="outline" 
@@ -371,7 +371,7 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                           size="sm" 
                           onClick={runATSAnalysis}
                           disabled={runningAnalysis}
-                          className="bg-amber-600 hover:bg-amber-700"
+                          className="bg-warning hover:bg-warning/90"
                         >
                           {runningAnalysis ? (
                             <>
@@ -426,14 +426,14 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 className="w-5 h-5 text-success" />
                       Matched Skills ({atsDetails.matchedSkills.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {atsDetails.matchedSkills.map((skill, index) => (
-                        <Badge key={index} variant="default" className="bg-green-500/10 text-green-700 border-green-200">
+                        <Badge key={index} variant="default" className="bg-success/10 text-success border-success/20">
                           <CheckCircle2 className="w-3 h-3 mr-1" />
                           {skill}
                         </Badge>
@@ -448,14 +448,14 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <XCircle className="w-5 h-5 text-red-500" />
+                      <XCircle className="w-5 h-5 text-destructive" />
                       Missing Skills ({atsDetails.missingSkills.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {atsDetails.missingSkills.map((skill, index) => (
-                        <Badge key={index} variant="outline" className="bg-red-500/10 text-red-700 border-red-200">
+                        <Badge key={index} variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
                           <XCircle className="w-3 h-3 mr-1" />
                           {skill}
                         </Badge>
@@ -488,7 +488,7 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      <CheckCircle2 className="w-5 h-5 text-success" />
                       Strengths
                     </CardTitle>
                   </CardHeader>
@@ -496,7 +496,7 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                     <ul className="space-y-2">
                       {atsDetails.strengths.map((strength, index) => (
                         <li key={index} className="flex gap-2 text-sm">
-                          <span className="text-green-600 font-bold mt-0.5">✓</span>
+                          <span className="text-success font-bold mt-0.5">✓</span>
                           <span>{strength}</span>
                         </li>
                       ))}
@@ -510,7 +510,7 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5 text-amber-600" />
+                      <AlertCircle className="w-5 h-5 text-warning" />
                       Areas for Development
                     </CardTitle>
                   </CardHeader>
@@ -518,7 +518,7 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
                     <ul className="space-y-2">
                       {atsDetails.weaknesses.map((weakness, index) => (
                         <li key={index} className="flex gap-2 text-sm">
-                          <span className="text-amber-600 font-bold mt-0.5">!</span>
+                          <span className="text-warning font-bold mt-0.5">!</span>
                           <span>{weakness}</span>
                         </li>
                       ))}
@@ -529,20 +529,20 @@ const CandidateProfile = ({ open, onOpenChange, candidate }: CandidateProfilePro
 
               {/* Recommendation */}
               <Card className={`border-2 ${
-                atsDetails.recommendation === "RECOMMENDED" ? "bg-green-50 border-green-300" :
-                atsDetails.recommendation === "NOT RECOMMENDED" ? "bg-red-50 border-red-300" :
-                "bg-amber-50 border-amber-300"
+                atsDetails.recommendation === "RECOMMENDED" ? "bg-success/10 border-success" :
+                atsDetails.recommendation === "NOT RECOMMENDED" ? "bg-destructive/10 border-destructive" :
+                "bg-warning/10 border-warning"
               }`}>
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3">
                     {atsDetails.recommendation === "RECOMMENDED" && (
-                      <CheckCircle2 className="w-8 h-8 text-green-600 flex-shrink-0" />
+                      <CheckCircle2 className="w-8 h-8 text-success flex-shrink-0" />
                     )}
                     {atsDetails.recommendation === "NOT RECOMMENDED" && (
-                      <XCircle className="w-8 h-8 text-red-600 flex-shrink-0" />
+                      <XCircle className="w-8 h-8 text-destructive flex-shrink-0" />
                     )}
                     {atsDetails.recommendation === "MAYBE" && (
-                      <AlertCircle className="w-8 h-8 text-amber-600 flex-shrink-0" />
+                      <AlertCircle className="w-8 h-8 text-warning flex-shrink-0" />
                     )}
                     <div>
                       <h3 className="font-bold text-lg">Overall Recommendation</h3>

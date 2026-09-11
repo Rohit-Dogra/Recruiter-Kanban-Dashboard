@@ -57,7 +57,7 @@ const SmartSignupForm = ({ googleData, onSuccess }: SmartSignupFormProps) => {
       
       toast({
         title: "Account created!",
-        description: "Welcome to HirerMind. Setting up your workspace...",
+        description: "Welcome to Hyre. Setting up your workspace...",
       });
       
       if (onSuccess) {

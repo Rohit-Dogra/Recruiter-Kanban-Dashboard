@@ -1,7 +1,9 @@
-import { Building2, Globe, MapPin, Users } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { Building2, MapPin } from "lucide-react";
+
 import { usePublicCompanies } from "@/hooks/useApiQuery";
-import { motion } from "framer-motion";
+import { Marquee } from "@/components/motion/PageTransition";
+import { SectionHeading } from "@/components/marketing/SectionHeading";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Company {
   id: number;
@@ -13,71 +15,94 @@ interface Company {
   size: string;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   TRUSTED COMPANIES
+   A grid of logo cards became a continuous marquee: it reads as a long list
+   without taking a screen-and-a-half of vertical space, and it works at any
+   count without leaving an awkward half-empty final row.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function CompanyCard({ company }: { company: Company }) {
+  return (
+    <div className="group flex w-60 shrink-0 items-center gap-3 rounded-[var(--radius-lg)] border border-border/70 bg-surface px-4 py-3.5 transition-all duration-300 ease-expo hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)] bg-secondary ring-1 ring-inset ring-border/60">
+        {company.logo ? (
+          <img
+            src={company.logo}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 ease-expo group-hover:scale-110"
+          />
+        ) : (
+          <Building2 className="h-5 w-5 text-muted-foreground" />
+        )}
+      </div>
+
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-foreground">{company.name}</p>
+        <p className="truncate text-xs text-muted-foreground">{company.industry}</p>
+        {company.location && (
+          <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground/70">
+            <MapPin className="h-2.5 w-2.5 shrink-0" />
+            <span className="truncate">{company.location}</span>
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const FeaturedCompanies = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
   const { data: companies, isLoading } = usePublicCompanies();
 
-  if (isLoading || !companies || companies.length === 0) return null;
+  if (isLoading) {
+    return (
+      <section className="border-y border-border/60 bg-surface-2/40 py-14">
+        <div className="container mx-auto">
+          <Skeleton className="mx-auto h-3 w-48" />
+          <div className="mt-8 flex gap-4 overflow-hidden">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-[72px] w-60 shrink-0 rounded-[var(--radius-lg)]" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const list = (companies as Company[] | undefined) ?? [];
+  if (list.length === 0) return null;
+
+  // Two rows drifting in opposite directions reads richer than one long strip.
+  const half = Math.ceil(list.length / 2);
+  const rowA = list.slice(0, half);
+  const rowB = list.length > 3 ? list.slice(half) : list;
 
   return (
-    <section className={`py-20 relative overflow-hidden transition-colors duration-300 ${isDark ? "bg-background" : "bg-secondary"}`}>
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
-          <div
-            className={`inline-flex items-center gap-2 border text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6 ${
-              isDark ? "border-zinc-700 bg-zinc-900/60 text-zinc-400" : "border-zinc-200 bg-zinc-100 text-zinc-500"
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            Trusted Companies
-          </div>
-          <h2
-            className={`text-3xl lg:text-4xl font-black mb-3 ${isDark ? "text-white" : "text-zinc-900"}`}
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            Companies Hiring on{" "}
-            <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">HirerMind</span>
-          </h2>
-          <p className={`text-sm max-w-lg mx-auto ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
-            Top organizations across industries trust our platform to find the right talent.
-          </p>
-        </div>
+    <section className="relative overflow-hidden border-y border-border/60 bg-surface-2/40 py-16 sm:py-20">
+      <div className="container mx-auto">
+        <SectionHeading
+          eyebrow="Trusted companies"
+          title="Teams already hiring on Hyre."
+          accentWord="already"
+        />
+      </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {(companies as Company[]).slice(0, 12).map((company, i) => (
-            <motion.div
-              key={company.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-              className={`group rounded-xl border p-5 text-center transition-all duration-200 ${
-                isDark
-                  ? "bg-card border-border hover:border-zinc-600 hover:bg-secondary"
-                  : "bg-card border-border hover:border-zinc-300 hover:shadow-md"
-              }`}
-            >
-              <div className="flex items-center justify-center w-14 h-14 mx-auto mb-3 rounded-xl overflow-hidden bg-muted">
-                {company.logo ? (
-                  <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
-                ) : (
-                  <Building2 className={`w-6 h-6 ${isDark ? "text-zinc-500" : "text-zinc-400"}`} />
-                )}
-              </div>
-              <p className={`text-sm font-semibold truncate ${isDark ? "text-zinc-200" : "text-zinc-800"}`}>
-                {company.name}
-              </p>
-              <p className={`text-xs mt-1 truncate ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
-                {company.industry}
-              </p>
-              <div className={`flex items-center justify-center gap-1 mt-2 text-xs ${isDark ? "text-zinc-600" : "text-zinc-400"}`}>
-                <MapPin className="w-3 h-3" />
-                <span className="truncate">{company.location}</span>
-              </div>
-            </motion.div>
+      <div className="mt-10 space-y-4">
+        <Marquee speed="slow">
+          {rowA.map((c) => (
+            <CompanyCard key={c.id} company={c} />
           ))}
-        </div>
+        </Marquee>
+
+        {rowB.length > 0 && (
+          <Marquee speed="slow" reverse>
+            {rowB.map((c) => (
+              <CompanyCard key={`b-${c.id}`} company={c} />
+            ))}
+          </Marquee>
+        )}
       </div>
     </section>
   );

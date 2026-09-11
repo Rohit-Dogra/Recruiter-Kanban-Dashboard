@@ -1,8 +1,13 @@
-import { Briefcase, MapPin, Clock, ArrowRight } from "lucide-react";
+import { ArrowUpRight, Clock, MapPin, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useTheme } from "@/contexts/ThemeContext";
+
 import { usePublicRecentJobs } from "@/hooks/useApiQuery";
-import { motion } from "framer-motion";
+import { SectionHeading } from "@/components/marketing/SectionHeading";
+import { Stagger, StaggerItem } from "@/components/motion/Reveal";
+import { Spotlight } from "@/components/motion/Magnetic";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface Job {
   id: number;
@@ -17,151 +22,157 @@ interface Job {
   createdAt: string;
 }
 
-const typeColors: Record<string, string> = {
-  "full-time": "#3b82f6",
-  "part-time": "#8b5cf6",
-  contract: "#f59e0b",
-  internship: "#10b981",
-  temporary: "#ef4444",
+/** Employment type → semantic tone. Keeps job chips consistent app-wide. */
+const TYPE_TONE: Record<string, string> = {
+  "full-time": "text-primary bg-primary/10 border-primary/20",
+  "part-time": "text-brand-fuchsia bg-brand-fuchsia/10 border-brand-fuchsia/20",
+  contract: "text-warning bg-warning/12 border-warning/25",
+  internship: "text-success bg-success/10 border-success/20",
+  temporary: "text-destructive bg-destructive/10 border-destructive/20",
 };
 
 function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "Today";
+  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  if (days <= 0) return "Today";
   if (days === 1) return "Yesterday";
   if (days < 7) return `${days}d ago`;
   return `${Math.floor(days / 7)}w ago`;
 }
 
+function parseSkills(skills: Job["skills"]): string[] {
+  if (Array.isArray(skills)) return skills;
+  if (typeof skills === "string") {
+    try {
+      const parsed = JSON.parse(skills);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 const RecentJobs = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
   const { data: jobs, isLoading } = usePublicRecentJobs();
 
-  if (isLoading || !jobs || jobs.length === 0) return null;
+  if (isLoading) {
+    return (
+      <section className="py-20 sm:py-24">
+        <div className="container mx-auto">
+          <Skeleton className="h-3 w-40" />
+          <Skeleton className="mt-5 h-10 w-96 max-w-full" />
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-40 rounded-[var(--radius-xl)]" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const list = (jobs as Job[] | undefined) ?? [];
+  if (list.length === 0) return null;
 
   return (
-    <section className={`py-20 relative overflow-hidden transition-colors duration-300 ${isDark ? "bg-background" : "bg-background"}`}>
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <div
-              className={`inline-flex items-center gap-2 border text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6 ${
-                isDark ? "border-zinc-700 bg-zinc-900/60 text-zinc-400" : "border-zinc-200 bg-zinc-100 text-zinc-500"
-              }`}
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              Fresh Opportunities
-            </div>
-            <h2
-              className={`text-3xl lg:text-4xl font-black ${isDark ? "text-white" : "text-zinc-900"}`}
-              style={{ fontFamily: "'Syne', sans-serif" }}
-            >
-              Recently Posted{" "}
-              <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">Jobs</span>
-            </h2>
-          </div>
-          <Link
-            to="/candidate/all-jobs"
-            className={`hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold transition-colors ${
-              isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"
-            }`}
-          >
-            View all jobs
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+    <section className="relative py-20 sm:py-24">
+      <div className="container mx-auto">
+        <SectionHeading
+          eyebrow="Fresh opportunities"
+          title="Roles posted this week."
+          accentWord="this week."
+          align="left"
+          action={
+            <Button asChild variant="outline" pill className="hidden sm:inline-flex">
+              <Link to="/candidate/jobs">
+                Browse all jobs
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          }
+        />
 
-        <div className="grid md:grid-cols-2 gap-4">
-          {(jobs as Job[]).slice(0, 8).map((job, i) => {
-            const accent = typeColors[job.type] || "#6366f1";
+        <Stagger gap={0.06} className="mt-10 grid gap-4 md:grid-cols-2">
+          {list.slice(0, 8).map((job) => {
+            const skills = parseSkills(job.skills);
+            const tone = TYPE_TONE[job.type] ?? "text-muted-foreground bg-secondary border-border";
+
             return (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                className={`group rounded-xl border p-5 transition-all duration-200 ${
-                  isDark
-                    ? "bg-card border-border hover:border-zinc-600"
-                    : "bg-card border-border hover:border-zinc-300 hover:shadow-md"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className={`text-base font-bold truncate ${isDark ? "text-zinc-100" : "text-zinc-900"}`}>
-                      {job.title}
-                    </p>
-                    <p className={`text-sm mt-0.5 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
-                      {job.company}
-                    </p>
-                  </div>
-                  <span
-                    className="flex-shrink-0 text-[11px] font-bold uppercase px-2.5 py-1 rounded-md"
-                    style={{ color: accent, background: `${accent}18`, border: `1px solid ${accent}30` }}
-                  >
-                    {job.type}
-                  </span>
-                </div>
+              <StaggerItem key={job.id}>
+                <Link
+                  to={`/careers/job/${job.id}`}
+                  className="group surface-card relative block h-full overflow-hidden p-5 no-underline transition-all duration-300 ease-expo hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+                >
+                  <Spotlight />
 
-                <div className={`flex flex-wrap items-center gap-3 mt-3 text-xs ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
-                  {job.location && (
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="w-3 h-3" /> {job.location}
+                  <div className="relative flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
+                        {job.title}
+                      </h3>
+                      <p className="mt-0.5 truncate text-sm text-muted-foreground">{job.company}</p>
+                    </div>
+
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                        tone
+                      )}
+                    >
+                      {job.type}
                     </span>
-                  )}
-                  <span className="inline-flex items-center gap-1 capitalize">
-                    {job.workType}
-                  </span>
-                  {job.salary && <span>{job.salary}</span>}
-                  <span className="inline-flex items-center gap-1 ml-auto">
-                    <Clock className="w-3 h-3" /> {timeAgo(job.createdAt)}
-                  </span>
-                </div>
+                  </div>
 
-                {(() => {
-                  const skills = Array.isArray(job.skills)
-                    ? job.skills
-                    : typeof job.skills === "string"
-                      ? (() => { try { const p = JSON.parse(job.skills); return Array.isArray(p) ? p : []; } catch { return []; } })()
-                      : [];
-                  return skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {skills.slice(0, 4).map((skill: string, si: number) => (
-                      <span
-                        key={si}
-                        className={`text-[11px] px-2 py-0.5 rounded-md ${
-                          isDark ? "bg-zinc-800 text-zinc-400" : "bg-zinc-100 text-zinc-500"
-                        }`}
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                    {skills.length > 4 && (
-                      <span className={`text-[11px] px-2 py-0.5 ${isDark ? "text-zinc-600" : "text-zinc-400"}`}>
-                        +{skills.length - 4}
+                  <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+                    {job.location && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {job.location}
                       </span>
                     )}
+                    <span className="capitalize">{job.workType}</span>
+                    {job.salary && (
+                      <span className="inline-flex items-center gap-1">
+                        <Wallet className="h-3 w-3" />
+                        {job.salary}
+                      </span>
+                    )}
+                    <span className="ml-auto inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {timeAgo(job.createdAt)}
+                    </span>
                   </div>
-                  ) : null;
-                })()}
-              </motion.div>
+
+                  {skills.length > 0 && (
+                    <div className="relative mt-4 flex flex-wrap gap-1.5">
+                      {skills.slice(0, 4).map((skill) => (
+                        <span
+                          key={skill}
+                          className="rounded-md bg-secondary px-2 py-0.5 text-[11px] text-secondary-foreground"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {skills.length > 4 && (
+                        <span className="px-1 text-[11px] text-muted-foreground">+{skills.length - 4}</span>
+                      )}
+                    </div>
+                  )}
+
+                  <ArrowUpRight className="absolute bottom-5 right-5 h-4 w-4 translate-y-1 text-primary opacity-0 transition-all duration-300 ease-expo group-hover:translate-y-0 group-hover:opacity-100" />
+                </Link>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
 
-        <div className="sm:hidden text-center mt-6">
-          <Link
-            to="/candidate/all-jobs"
-            className={`inline-flex items-center gap-1.5 text-sm font-semibold ${
-              isDark ? "text-blue-400" : "text-blue-600"
-            }`}
-          >
-            View all jobs
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+        <div className="mt-8 sm:hidden">
+          <Button asChild variant="outline" className="w-full" pill>
+            <Link to="/candidate/jobs">
+              Browse all jobs
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

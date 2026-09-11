@@ -30,8 +30,8 @@ const PipelineCustomizer = ({ companyId }: { companyId: number }) => {
   ];
 
   const colorOptions = [
-    'bg-blue-500', 'bg-yellow-500', 'bg-purple-500', 
-    'bg-orange-500', 'bg-green-500', 'bg-emerald-600', 'bg-red-500'
+    'bg-info', 'bg-warning', 'bg-primary', 
+    'bg-warning', 'bg-success', 'bg-success', 'bg-destructive'
   ];
 
   const iconOptions = [

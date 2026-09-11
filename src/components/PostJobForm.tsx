@@ -589,12 +589,12 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                 <CardContent className="space-y-6">
 
                   {/* ── AI Rewrite Button (top of section) ── */}
-                  <div className="flex items-center justify-between bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-200 rounded-lg px-4 py-3">
+                  <div className="flex items-center justify-between bg-gradient-to-r from-violet-50 to-indigo-50 border border-primary/20 rounded-lg px-4 py-3">
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-violet-800">
+                      <span className="text-sm font-semibold text-primary">
                         ✨ AI Rewrite
                       </span>
-                      <span className="text-xs text-violet-600">
+                      <span className="text-xs text-primary">
                         Auto-generate Description, Requirements & Benefits based on your job role
                       </span>
                     </div>
@@ -602,7 +602,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                       type="button"
                       onClick={handleAIRewrite}
                       disabled={isRewriting || !formData.title.trim()}
-                      className="bg-violet-600 hover:bg-violet-700 text-white flex items-center gap-2 shrink-0 ml-4"
+                      className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2 shrink-0 ml-4"
                     >
                       {isRewriting ? (
                         <>
@@ -623,7 +623,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="description" className="font-medium text-base">Description *</Label>
                       {aiGenerated.description && (
-                        <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-violet-100 text-violet-700">
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-primary/14 text-primary">
                           <Sparkles className="h-3 w-3" /> AI Generated
                         </Badge>
                       )}
@@ -667,7 +667,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="requirements" className="font-medium text-base">Requirements *</Label>
                       {aiGenerated.requirements && (
-                        <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-violet-100 text-violet-700">
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-primary/14 text-primary">
                           <Sparkles className="h-3 w-3" /> AI Generated
                         </Badge>
                       )}
@@ -690,7 +690,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                     <div className="flex items-center justify-between">
                       <Label htmlFor="benefits" className="font-medium text-base">Benefits</Label>
                       {aiGenerated.benefits && (
-                        <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-violet-100 text-violet-700">
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-primary/14 text-primary">
                           <Sparkles className="h-3 w-3" /> AI Generated
                         </Badge>
                       )}
@@ -899,12 +899,12 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* ── AI Generate Questions Button ── */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg px-4 py-3">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-gradient-to-r from-blue-50 to-cyan-50 border border-info/20 rounded-lg px-4 py-3">
                     <div className="flex flex-col flex-1">
-                      <span className="text-sm font-semibold text-blue-800">
+                      <span className="text-sm font-semibold text-info">
                         ✨ AI Generate Questions
                       </span>
-                      <span className="text-xs text-blue-600">
+                      <span className="text-xs text-info">
                         Auto-generate 5 role-specific screening questions
                       </span>
                     </div>
@@ -924,7 +924,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                         type="button"
                         onClick={handleGenerateQuestions}
                         disabled={isGeneratingQuestions || !formData.title.trim()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 flex-1 sm:flex-initial"
+                        className="bg-info hover:bg-info/90 text-white flex items-center gap-2 flex-1 sm:flex-initial"
                       >
                         {isGeneratingQuestions ? (
                           <>
@@ -953,7 +953,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }: PostJobFormProps) => 
                         }}
                       >
                         <CollapsibleTrigger asChild>
-                          <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-secondary">
                             <span className="text-sm font-medium flex-1 mr-2 break-words">{question.question}</span>
                             <div className="flex items-center gap-1 shrink-0">
                               <Button

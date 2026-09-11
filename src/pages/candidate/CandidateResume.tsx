@@ -163,8 +163,8 @@ const CandidateResume = () => {
       
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Resume</h1>
-          <p className="text-gray-600 mt-2">Manage your resume and keep it up to date</p>
+          <h1 className="text-3xl font-bold text-foreground">My Resume</h1>
+          <p className="text-muted-foreground mt-2">Manage your resume and keep it up to date</p>
         </div>
 
         <div className="grid gap-6">
@@ -178,12 +178,12 @@ const CandidateResume = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {resumeUrl ? (
-                <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-success/10 border border-success/20 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-green-600" />
+                    <FileText className="w-8 h-8 text-success" />
                     <div>
-                      <p className="font-medium text-green-900">Resume Available</p>
-                      <p className="text-sm text-green-700">Your resume is ready to view</p>
+                      <p className="font-medium text-success">Resume Available</p>
+                      <p className="text-sm text-success">Your resume is ready to view</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -199,9 +199,9 @@ const CandidateResume = () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Resume Added</h3>
-                  <p className="text-gray-600 mb-4">Add your resume to get started with job applications</p>
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No Resume Added</h3>
+                  <p className="text-muted-foreground mb-4">Add your resume to get started with job applications</p>
                   <Button onClick={() => setIsEditing(true)}>
                     <Upload className="w-4 h-4 mr-2" />
                     Add Resume
@@ -236,11 +236,11 @@ const CandidateResume = () => {
                     className="cursor-pointer"
                   />
                   {selectedFile && (
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-success">
                       Selected: {selectedFile.name}
                     </p>
                   )}
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Upload a PDF file (max 10MB). Must contain professional information like experience, education, and skills.
                   </p>
                 </div>
@@ -248,21 +248,21 @@ const CandidateResume = () => {
                 {/* Real-time validation feedback */}
                 {(validatingResume || resumeValidation.type) && (
                   <div className={`p-3 rounded-md text-sm ${
-                    validatingResume ? 'bg-blue-50 text-blue-700' :
-                    resumeValidation.type === 'success' ? 'bg-green-50 text-green-700' :
-                    'bg-red-50 text-red-700'
+                    validatingResume ? 'bg-info/10 text-info' :
+                    resumeValidation.type === 'success' ? 'bg-success/10 text-success' :
+                    'bg-destructive/10 text-destructive'
                   }`}>
                     {validatingResume ? (
                       <div className="flex items-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-info"></div>
                         <span>Validating resume content...</span>
                       </div>
                     ) : (
                       <div className="flex items-center space-x-2">
                         {resumeValidation.type === 'success' ? (
-                          <span className="text-green-600">✓</span>
+                          <span className="text-success">✓</span>
                         ) : (
-                          <span className="text-red-600">✗</span>
+                          <span className="text-destructive">✗</span>
                         )}
                         <span>{resumeValidation.message}</span>
                       </div>
@@ -296,21 +296,21 @@ const CandidateResume = () => {
               <CardTitle>Resume Tips</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 text-sm text-gray-600">
+              <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-info rounded-full mt-2 flex-shrink-0"></div>
                   <p>Keep your resume updated with your latest experience and skills</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-info rounded-full mt-2 flex-shrink-0"></div>
                   <p>Use a professional format and ensure it's easy to read</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-info rounded-full mt-2 flex-shrink-0"></div>
                   <p>Make sure your resume URL is publicly accessible</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-info rounded-full mt-2 flex-shrink-0"></div>
                   <p>Tailor your resume for each job application when possible</p>
                 </div>
               </div>

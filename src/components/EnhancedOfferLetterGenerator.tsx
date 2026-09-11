@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Download, Eye, Send, FileText, CheckCircle } from 'lucide-react';
 import offerLetterService from '@/services/offer-letter-consolidated.service';
 import { useToast } from '@/hooks/use-toast';
+import { BRAND } from "@/lib/brand";
 
 interface EnhancedOfferLetterGeneratorProps {
   open: boolean;
@@ -189,9 +190,9 @@ export const EnhancedOfferLetterGenerator = ({
 
     return `[COMPANY LOGO]
 
-HIRERMIND
+${BRAND.nameUpper}
 Innovative Recruitment Solutions
-contact@hirermind.com | www.hirermind.com
+${BRAND.email.contact} | ${BRAND.domain}
 
 Date: ${new Date().toLocaleDateString('en-IN')}
 
@@ -203,7 +204,7 @@ Subject: Offer of Employment
 
 Dear ${candidateName},
 
-We are pleased to offer you the position of ${jobTitle} at HirerMind, based on your performance during the interview process.
+We are pleased to offer you the position of ${jobTitle} at Hyre, based on your performance during the interview process.
 
 EMPLOYMENT DETAILS
 
@@ -233,7 +234,7 @@ Please sign and return this letter as a token of acceptance on or before ${new D
 Warm regards,
 
 HR Team
-HirerMind
+Hyre
 
 ---
 

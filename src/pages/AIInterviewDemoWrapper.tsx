@@ -333,8 +333,8 @@ export default function AIInterviewDemoWrapper() {
                   className="w-full h-full object-cover"
                 />
                 {recording && (
-                  <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500 text-white px-3 py-1 rounded-full">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <div className="absolute top-4 right-4 flex items-center gap-2 bg-destructive text-white px-3 py-1 rounded-full">
+                    <div className="w-2 h-2 bg-surface rounded-full animate-pulse" />
                     Recording
                   </div>
                 )}
@@ -385,7 +385,7 @@ export default function AIInterviewDemoWrapper() {
             <h3 className="font-semibold mb-4">Interview Progress:</h3>
             <div className="space-y-2">
               {questions.map((q, idx) => (
-                <div key={idx} className={`flex items-center gap-2 text-sm ${idx === currentQuestionIndex ? 'text-primary font-medium' : idx < currentQuestionIndex ? 'text-green-600' : 'text-muted-foreground'}`}>
+                <div key={idx} className={`flex items-center gap-2 text-sm ${idx === currentQuestionIndex ? 'text-primary font-medium' : idx < currentQuestionIndex ? 'text-success' : 'text-muted-foreground'}`}>
                   {idx < currentQuestionIndex ? '✓' : idx === currentQuestionIndex ? '→' : '○'} Question {idx + 1}: {q.skill}
                 </div>
               ))}

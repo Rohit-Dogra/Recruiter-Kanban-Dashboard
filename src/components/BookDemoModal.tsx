@@ -180,13 +180,13 @@ const BookDemoModal = ({ open, onOpenChange }: BookDemoModalProps) => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={`max-h-[90vh] p-0 gap-0 overflow-hidden border-0 w-[95vw] ${step === "select" && selectedDate ? "max-w-[740px]" : step === "select" ? "max-w-[560px]" : "max-w-[480px]"} transition-[max-width] duration-300`}>
         {/* Top accent bar */}
-        <div className="h-1.5 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-500" />
+        <div className="h-1.5 bg-gradient-to-r from-info via-info to-primary" />
 
         {step === "confirmed" ? (
           /* ── Confirmation Screen ── */
           <div className="text-center py-10 sm:py-14 px-6 sm:px-8">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 sm:mb-5">
-              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-green-600" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-success/14 flex items-center justify-center mx-auto mb-4 sm:mb-5">
+              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-success" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold mb-2">You're All Set!</h2>
             <p className="text-muted-foreground text-sm mb-1">Your demo is booked for</p>
@@ -214,19 +214,19 @@ const BookDemoModal = ({ open, onOpenChange }: BookDemoModalProps) => {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="demo-name" className="flex items-center gap-1.5 mb-1.5 text-sm">
-                  <User className="w-3.5 h-3.5" /> Full Name <span className="text-red-500">*</span>
+                  <User className="w-3.5 h-3.5" /> Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input id="demo-name" placeholder="John Doe" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div>
                 <Label htmlFor="demo-email" className="flex items-center gap-1.5 mb-1.5 text-sm">
-                  <Mail className="w-3.5 h-3.5" /> Work Email <span className="text-red-500">*</span>
+                  <Mail className="w-3.5 h-3.5" /> Work Email <span className="text-destructive">*</span>
                 </Label>
                 <Input id="demo-email" type="email" placeholder="john@company.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div>
                 <Label htmlFor="demo-company" className="flex items-center gap-1.5 mb-1.5 text-sm">
-                  <Building2 className="w-3.5 h-3.5" /> Company <span className="text-red-500">*</span>
+                  <Building2 className="w-3.5 h-3.5" /> Company <span className="text-destructive">*</span>
                 </Label>
                 <Input id="demo-company" placeholder="Acme Inc." value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
               </div>
@@ -256,19 +256,19 @@ const BookDemoModal = ({ open, onOpenChange }: BookDemoModalProps) => {
             {/* Left Panel — Meeting Info */}
             <div className="md:w-[200px] shrink-0 border-b md:border-b-0 md:border-r border-border p-4 sm:p-6 flex flex-row md:flex-col gap-4 md:gap-0">
               <div className="flex items-center gap-2 md:mb-4">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-info flex items-center justify-center">
                   <span className="text-white font-bold text-xs sm:text-sm">H</span>
                 </div>
-                <span className="font-semibold text-sm text-blue-600">HirerMind</span>
+                <span className="font-semibold text-sm text-info">Hyre</span>
               </div>
 
               {/* Mobile: inline row | Desktop: stacked */}
               <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-0 flex-1">
-                <div className="hidden md:flex w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center text-white font-bold text-sm mb-3">
+                <div className="hidden md:flex w-10 h-10 rounded-full bg-gradient-to-br from-info to-primary items-center justify-center text-white font-bold text-sm mb-3">
                   HM
                 </div>
                 <div className="hidden md:block">
-                  <p className="text-xs text-muted-foreground">HirerMind Team</p>
+                  <p className="text-xs text-muted-foreground">Hyre Team</p>
                   <h3 className="font-bold text-base mt-0.5 mb-4">Product Demo</h3>
                 </div>
                 <h3 className="md:hidden font-bold text-sm">Product Demo</h3>
@@ -339,8 +339,8 @@ const BookDemoModal = ({ open, onOpenChange }: BookDemoModalProps) => {
                         disabled={!available}
                         className={`w-8 h-8 rounded-full text-xs font-medium transition-all
                           ${!available ? "text-muted-foreground/30 cursor-not-allowed" : ""}
-                          ${available && !selected ? "text-blue-600 font-semibold hover:bg-blue-50 dark:hover:bg-blue-950" : ""}
-                          ${selected ? "bg-blue-600 text-white" : ""}
+                          ${available && !selected ? "text-info font-semibold hover:bg-blue-50 dark:hover:bg-blue-950" : ""}
+                          ${selected ? "bg-info text-white" : ""}
                         `}
                       >
                         {cell.day}
@@ -370,12 +370,12 @@ const BookDemoModal = ({ open, onOpenChange }: BookDemoModalProps) => {
                         <div key={slot} className="relative">
                           {selectedTime === slot ? (
                             <div className="flex gap-1 sm:gap-1.5">
-                              <div className="flex-1 bg-gray-500 text-white text-xs sm:text-sm font-semibold rounded-md py-1.5 sm:py-2 text-center">
+                              <div className="flex-1 bg-muted-foreground text-white text-xs sm:text-sm font-semibold rounded-md py-1.5 sm:py-2 text-center">
                                 {slot}
                               </div>
                               <button
                                 onClick={() => setStep("details")}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-md py-1.5 sm:py-2 text-center transition-colors"
+                                className="flex-1 bg-info hover:bg-info/90 text-white text-xs sm:text-sm font-semibold rounded-md py-1.5 sm:py-2 text-center transition-colors"
                               >
                                 Confirm
                               </button>
@@ -383,7 +383,7 @@ const BookDemoModal = ({ open, onOpenChange }: BookDemoModalProps) => {
                           ) : (
                             <button
                               onClick={() => setSelectedTime(slot)}
-                              className="w-full border border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 text-xs sm:text-sm font-semibold rounded-md py-1.5 sm:py-2 text-center transition-colors"
+                              className="w-full border border-info text-info hover:bg-blue-50 dark:hover:bg-blue-950 text-xs sm:text-sm font-semibold rounded-md py-1.5 sm:py-2 text-center transition-colors"
                             >
                               {slot}
                             </button>

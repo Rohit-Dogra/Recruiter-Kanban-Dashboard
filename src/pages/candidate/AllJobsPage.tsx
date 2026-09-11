@@ -137,7 +137,7 @@ function AllJobsPage() {
           <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {j.type && <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{j.type}</span>}
             {j.experience && <span className="flex items-center gap-1"><GraduationCap className="h-3 w-3" />{j.experience}</span>}
-            {j.salary && <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><DollarSign className="h-3 w-3" />{typeof j.salary === "number" ? `${(j.salary/1000).toFixed(0)}K` : j.salary}</span>}
+            {j.salary && <span className="flex items-center gap-1 text-success dark:text-success font-medium"><DollarSign className="h-3 w-3" />{typeof j.salary === "number" ? `${(j.salary/1000).toFixed(0)}K` : j.salary}</span>}
           </div>
           {j.description && <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{j.description}</p>}
           {showSkills.length > 0 && (
@@ -174,7 +174,7 @@ function AllJobsPage() {
               {j.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{j.location}</span>}
               {j.type && <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{j.type}</span>}
               {j.experience && <span className="flex items-center gap-1"><GraduationCap className="h-3 w-3" />{j.experience}</span>}
-              {j.salary && <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium"><DollarSign className="h-3 w-3" />{typeof j.salary === "number" ? `${(j.salary/1000).toFixed(0)}K` : j.salary}</span>}
+              {j.salary && <span className="flex items-center gap-1 text-success dark:text-success font-medium"><DollarSign className="h-3 w-3" />{typeof j.salary === "number" ? `${(j.salary/1000).toFixed(0)}K` : j.salary}</span>}
               <span className="text-muted-foreground/60">{timeAgo(j.createdAt)}</span>
             </div>
             {showSkills.length > 0 && (

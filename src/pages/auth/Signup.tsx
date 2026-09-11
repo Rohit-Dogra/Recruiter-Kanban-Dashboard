@@ -192,8 +192,8 @@ const Signup = () => {
           {(step === 2 || showForm) && (
             <div>
               {googleData && (
-                <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                  <p className="text-sm text-green-800 dark:text-green-300">
+                <div className="mb-4 p-3 bg-success/10 dark:bg-green-950/30 border border-success/20 dark:border-success rounded-lg">
+                  <p className="text-sm text-success dark:text-success">
                     ✓ Google account verified. Please complete your company details below.
                   </p>
                 </div>

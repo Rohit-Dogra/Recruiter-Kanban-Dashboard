@@ -46,12 +46,12 @@ const getInitials = (u: UserInfo) =>
   `${u.firstName?.[0] || ""}${u.lastName?.[0] || ""}`.toUpperCase() || "?";
 
 const avatarColors = [
-  "from-blue-500 to-blue-700",
-  "from-indigo-500 to-indigo-700",
-  "from-cyan-500 to-cyan-700",
-  "from-violet-500 to-violet-700",
-  "from-emerald-500 to-emerald-700",
-  "from-rose-500 to-rose-700",
+  "from-info to-info",
+  "from-primary to-primary",
+  "from-brand-cyan to-brand-cyan",
+  "from-primary to-primary",
+  "from-success to-success",
+  "from-destructive to-destructive",
 ];
 const getAvatarColor = (id: number) => avatarColors[id % avatarColors.length];
 
@@ -81,8 +81,8 @@ const getCurrentUserId = (): number => {
 
 /* ── Status icon ─────────────────────────────────────────────── */
 const StatusIcon = ({ readAt }: { readAt: string | null }) => {
-  if (readAt) return <CheckCheck className="w-3 h-3 text-blue-400" />;
-  return <Check className="w-3 h-3 text-zinc-400" />;
+  if (readAt) return <CheckCheck className="w-3 h-3 text-info" />;
+  return <Check className="w-3 h-3 text-muted-foreground" />;
 };
 
 /* ── Component ───────────────────────────────────────────────── */
@@ -217,7 +217,7 @@ const Messages = () => {
                 <span className="text-sm font-bold text-foreground">Messages</span>
               </div>
               {totalUnread > 0 && (
-                <span className="text-[10px] font-black bg-blue-600 text-white px-2 py-0.5 rounded-full">
+                <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
                   {totalUnread}
                 </span>
               )}
@@ -250,7 +250,7 @@ const Messages = () => {
                   onClick={() => setSelectedChatId(conv.id)}
                   className={`flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-all duration-150 border-b border-border/30 relative
                     ${selectedChatId === conv.id
-                      ? "bg-blue-500/8 border-l-2 border-l-blue-500"
+                      ? "bg-info/8 border-l-2 border-l-info"
                       : "hover:bg-muted/30 border-l-2 border-l-transparent"
                     }`}
                 >
@@ -275,12 +275,12 @@ const Messages = () => {
                     )}
                     <p className={`text-xs truncate ${conv.unreadCount > 0 ? "text-foreground/70 font-medium" : "text-muted-foreground"}`}>
                       {typingUsers[conv.id]
-                        ? <span className="text-blue-500 italic">typing…</span>
+                        ? <span className="text-info italic">typing…</span>
                         : conv.lastMessage?.content || "No messages yet"}
                     </p>
                   </div>
                   {conv.unreadCount > 0 && (
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-black text-white">
+                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                       {conv.unreadCount}
                     </span>
                   )}
@@ -311,7 +311,7 @@ const Messages = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {typingUsers[selectedChatId]
-                        ? <span className="text-blue-500 italic">typing…</span>
+                        ? <span className="text-info italic">typing…</span>
                         : activeConv.job?.title || activeConv.otherUser.email}
                     </p>
                   </div>
@@ -365,7 +365,7 @@ const Messages = () => {
                           <div className={`flex flex-col gap-1 max-w-[62%] ${isMe ? "items-end" : "items-start"}`}>
                             <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                               isMe
-                                ? "bg-blue-600 text-white rounded-br-sm shadow-[0_2px_12px_rgba(59,130,246,0.25)]"
+                                ? "bg-primary text-primary-foreground rounded-br-sm shadow-glow"
                                 : "bg-muted/70 border border-border/50 text-foreground rounded-bl-sm"
                             }`}>
                               {msg.messageType === "file" && msg.fileUrl ? (
@@ -410,7 +410,7 @@ const Messages = () => {
                   <button
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim() || sendMutation.isPending}
-                    className="flex-shrink-0 w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-[0_2px_10px_rgba(59,130,246,0.3)]"
+                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-primary text-primary-foreground shadow-glow transition-all duration-200 hover:bg-primary/90 hover:shadow-glow-lg disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
                   >
                     {sendMutation.isPending
                       ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />

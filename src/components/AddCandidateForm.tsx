@@ -276,7 +276,7 @@ const AddCandidateForm = ({ open, onOpenChange, onSuccess }: AddCandidateFormPro
                   <p className="text-xs text-muted-foreground mt-1">or click to browse · PDF only · Max 10MB</p>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  <Sparkles className="h-4 w-4 text-warning" />
                   <span className="text-xs text-muted-foreground">AI-powered parser will extract name, email, skills, experience and more</span>
                 </div>
               </div>
@@ -306,7 +306,7 @@ const AddCandidateForm = ({ open, onOpenChange, onSuccess }: AddCandidateFormPro
             <div className="space-y-2">
               <Progress value={parseProgress} className="h-2" />
               <div className="flex items-center justify-center gap-2">
-                {parseProgress < 100 ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                {parseProgress < 100 ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <CheckCircle2 className="h-4 w-4 text-success" />}
                 <span className="text-sm text-muted-foreground">{parseStatus}</span>
               </div>
             </div>
@@ -318,8 +318,8 @@ const AddCandidateForm = ({ open, onOpenChange, onSuccess }: AddCandidateFormPro
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Resume indicator */}
             {resumeFile && (
-              <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30 p-3">
-                <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+              <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/10 dark:border-success dark:bg-green-950/30 p-3">
+                <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{resumeFile.name}</p>
                   <p className="text-xs text-muted-foreground">Resume parsed · Review and edit the fields below</p>
@@ -331,9 +331,9 @@ const AddCandidateForm = ({ open, onOpenChange, onSuccess }: AddCandidateFormPro
             )}
 
             {parsedSummary && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 p-3">
+              <div className="rounded-lg border border-warning/20 bg-warning/10 dark:border-warning dark:bg-amber-950/30 p-3">
                 <div className="flex items-start gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                  <Sparkles className="h-4 w-4 text-warning mt-0.5 shrink-0" />
                   <p className="text-xs text-muted-foreground">{parsedSummary}</p>
                 </div>
               </div>

@@ -1,15 +1,23 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Building2, Eye, EyeOff, Lock, Mail, UserRound } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Eye, EyeOff, ArrowLeft, Building, User } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import unifiedAuthService from "@/services/unified-auth.service";
 import UnifiedGoogleSignIn from "@/components/UnifiedGoogleSignIn";
 import AuthLayout from "@/layouts/AuthLayout";
+import { cn } from "@/lib/utils";
+
+const ROLES = [
+  { key: "hiring", label: "I'm hiring", icon: Building2 },
+  { key: "looking", label: "I'm job hunting", icon: UserRound },
+] as const;
 
 const UnifiedLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +26,8 @@ const UnifiedLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<"hiring" | "looking">("hiring");
   const [showEmailNotFoundModal, setShowEmailNotFoundModal] = useState(false);
+  const [fieldError, setFieldError] = useState<string | null>(null);
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,22 +37,23 @@ const UnifiedLogin = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setFieldError(null);
 
     try {
       const response = await unifiedAuthService.login({ email, password });
 
       toast({
-        title: "Welcome back!",
-        description: `Successfully signed in to your ${response.userType} account.`,
+        title: "Welcome back",
+        description: `Signed in to your ${response.userType} account.`,
       });
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-      if (response.userType === 'company') {
+      if (response.userType === "company") {
         if (response.needsCompanyDetails) {
           toast({
-            title: "Complete Your Profile",
-            description: "Please finish setting up your company profile to continue.",
+            title: "Complete your profile",
+            description: "Finish setting up your company profile to continue.",
           });
           navigate("/auth/company-details");
         } else {
@@ -50,29 +61,32 @@ const UnifiedLogin = () => {
         }
       }
 
-      if (response.userType === 'admin') {
+      if (response.userType === "admin") {
         navigate("/admin", { replace: true });
       }
 
-      if (response.userType === 'candidate') {
+      if (response.userType === "candidate") {
         if (!response.profileCompleted) {
           toast({
-            title: "Complete Your Profile",
-            description: "Please finish setting up your profile to access all features.",
+            title: "Complete your profile",
+            description: "Finish setting up your profile to access all features.",
           });
           navigate("/candidate/profile");
         } else {
           navigate("/candidate/dashboard");
         }
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message;
+    } catch (error) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
 
-      if (errorMessage?.includes('No account found')) {
+      if (errorMessage?.includes("No account found")) {
         setShowEmailNotFoundModal(true);
       } else {
+        // Inline error keeps the cause next to the fields that caused it;
+        // the toast alone was easy to miss on a long form.
+        setFieldError(errorMessage || "Those credentials didn't work. Check them and try again.");
         toast({
-          title: "Login Failed",
+          title: "Sign-in failed",
           description: errorMessage || "Something went wrong. Please try again.",
           variant: "destructive",
         });
@@ -83,190 +97,177 @@ const UnifiedLogin = () => {
   };
 
   return (
-    <AuthLayout>
-      <div className="text-center mb-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-
-        <h1 className="text-2xl font-bold">Welcome back</h1>
-        <p className="text-muted-foreground">Sign in to your HirerMind account</p>
+    <AuthLayout headline="Welcome back to Hyre">
+      <div className="mb-7">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">Sign in</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Pick up where you left off — your pipeline is waiting.
+        </p>
       </div>
 
-      <Card className="bg-gradient-card border-0 shadow-elegant">
-        <CardHeader className="text-center pb-4">
-          <CardTitle>Sign In</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          {/* Role selection tabs */}
-          <div className="flex rounded-lg bg-muted p-1 mb-6">
+      {/* ── Role segmented control ── */}
+      <div
+        role="tablist"
+        aria-label="Account type"
+        className="mb-6 grid grid-cols-2 gap-1 rounded-[var(--radius-lg)] border border-border/60 bg-surface-2 p-1 shadow-inset"
+      >
+        {ROLES.map((role) => {
+          const active = selectedRole === role.key;
+          return (
             <button
+              key={role.key}
               type="button"
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                selectedRole === "hiring"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              onClick={() => setSelectedRole("hiring")}
+              role="tab"
+              aria-selected={active}
+              onClick={() => setSelectedRole(role.key)}
+              className={cn(
+                "relative flex items-center justify-center gap-2 rounded-[var(--radius-md)] px-3 py-2.5 text-[13px] font-medium transition-colors duration-200",
+                active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
             >
-              <Building className="w-4 h-4" />
-              I'm hiring
-            </button>
-            <button
-              type="button"
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                selectedRole === "looking"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              onClick={() => setSelectedRole("looking")}
-            >
-              <User className="w-4 h-4" />
-              I'm looking for work
-            </button>
-          </div>
-
-          <div className="mb-6">
-            <UnifiedGoogleSignIn
-              className="w-full"
-              onEmailNotFound={() => setShowEmailNotFoundModal(true)}
-            />
-
-            <div className="relative mt-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
-              </div>
-            </div>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="pr-10 transition-all duration-200"
+              {active && (
+                <motion.span
+                  layoutId="role-pill"
+                  className="absolute inset-0 -z-10 rounded-[var(--radius-md)] bg-surface shadow-sm"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-            </div>
+              )}
+              <role.icon className="h-4 w-4" />
+              {role.label}
+            </button>
+          );
+        })}
+      </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="rounded"
-                  aria-labelledby="remember-label"
-                  title="Remember me"
-                />
-                <Label htmlFor="remember" id="remember-label" className="text-sm">Remember me</Label>
-              </div>
-              <Link
-                to="/auth/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
+      {/* ── Google ── */}
+      <UnifiedGoogleSignIn className="w-full" onEmailNotFound={() => setShowEmailNotFoundModal(true)} />
 
-            <Button
-              type="submit"
-              variant="hero"
-              size="lg"
-              className="w-full"
-              disabled={isLoading}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center" aria-hidden>
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-background px-3 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            or with email
+          </span>
+        </div>
+      </div>
+
+      {/* ── Credentials ── */}
+      <form onSubmit={handleLogin} className="space-y-4" noValidate>
+        <div className="space-y-1.5">
+          <Label htmlFor="email" required>
+            Email
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            error={!!fieldError}
+            startAdornment={<Mail />}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" required>
+              Password
+            </Label>
+            <Link
+              to="/auth/forgot-password"
+              className="text-xs font-medium text-primary no-underline hover:underline"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
-
-          <div className="mt-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Button
-                variant="link"
-                className="text-primary hover:underline font-medium p-0 h-auto"
-                onClick={() => navigate("/signup")}
-              >
-                Sign up
-              </Button>
-            </p>
+              Forgot password?
+            </Link>
           </div>
-        </CardContent>
-      </Card>
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            error={!!fieldError}
+            startAdornment={<Lock />}
+            endAdornment={
+              <button
+                type="button"
+                data-compact
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-xs)] text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            }
+          />
+        </div>
 
-      {/* Email Not Found Modal */}
+        {fieldError && (
+          <motion.p
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            role="alert"
+            className="rounded-[var(--radius-sm)] border border-destructive/25 bg-destructive/8 px-3 py-2 text-[13px] text-destructive"
+          >
+            {fieldError}
+          </motion.p>
+        )}
+
+        <label className="flex cursor-pointer items-center gap-2.5 pt-0.5">
+          <Checkbox id="remember" />
+          <span className="text-[13px] text-muted-foreground">Keep me signed in</span>
+        </label>
+
+        <Button
+          type="submit"
+          variant="hero"
+          size="lg"
+          className="w-full"
+          loading={isLoading}
+          loadingText="Signing you in…"
+        >
+          Sign in
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        New here?{" "}
+        <Link to="/signup" className="font-medium text-primary no-underline hover:underline">
+          Create an account
+        </Link>
+      </p>
+
+      {/* ── Account-not-found recovery ── */}
       <Dialog open={showEmailNotFoundModal} onOpenChange={setShowEmailNotFoundModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-center text-xl font-bold">Account Not Found</DialogTitle>
+            <DialogTitle>No account found</DialogTitle>
+            <DialogDescription>
+              We couldn't find an account for <span className="font-medium text-foreground">{email}</span>. Would
+              you like to create one?
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="text-center py-4">
-            <p className="text-muted-foreground mb-6">
-              We couldn't find an account with the email <strong>{email}</strong>.
-              Would you like to create a new account?
-            </p>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowEmailNotFoundModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="hero"
-                className="flex-1"
-                onClick={() => {
-                  setShowEmailNotFoundModal(false);
-                  navigate("/signup");
-                }}
-              >
-                Sign Up
-              </Button>
-            </div>
-          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEmailNotFoundModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="hero"
+              onClick={() => {
+                setShowEmailNotFoundModal(false);
+                navigate("/signup");
+              }}
+            >
+              Create account
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </AuthLayout>

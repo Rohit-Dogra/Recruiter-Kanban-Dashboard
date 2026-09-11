@@ -6,43 +6,30 @@ import StatsSection from "@/components/StatsSection";
 import FeaturedCompanies from "@/components/FeaturedCompanies";
 import RecentJobs from "@/components/RecentJobs";
 import Footer from "@/components/Footer";
-import { useTheme } from "@/contexts/ThemeContext";
-import { motion } from "framer-motion";
+import { ScrollProgress } from "@/components/marketing/ScrollProgress";
 
-const sectionReveal = {
-  initial: { opacity: 0, y: 40 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-100px" },
-  transition: { duration: 0.6, ease: "easeOut" as const },
-};
-
-const Index = () => {
-  const { theme } = useTheme();
-
-  return (
-    <div className={theme === "dark" ? "dark bg-background min-h-screen" : "bg-background min-h-screen"}>
-      <Header />
+/**
+ * Landing page. Section order follows the visitor's questions in sequence:
+ * what is it (hero) → who uses it (companies) → what's on it (jobs) →
+ * how does it work (features → pipeline) → does it work (stats) → act (footer).
+ *
+ * The `dark` class is owned by ThemeProvider on <html>, so no theme branching
+ * is needed here any more.
+ */
+const Index = () => (
+  <div className="min-h-screen bg-background">
+    <ScrollProgress />
+    <Header />
+    <main id="main">
       <HeroSection />
-      <motion.div {...sectionReveal}>
-        <FeaturedCompanies />
-      </motion.div>
-      <motion.div {...sectionReveal}>
-        <RecentJobs />
-      </motion.div>
-      <motion.div {...sectionReveal}>
-        <FeatureGrid />
-      </motion.div>
-      <motion.div {...sectionReveal} transition={{ duration: 0.6, ease: "easeOut" as const, delay: 0.1 }}>
-        <PipelineVisualization />
-      </motion.div>
-      <motion.div {...sectionReveal} transition={{ duration: 0.6, ease: "easeOut" as const, delay: 0.1 }}>
-        <StatsSection />
-      </motion.div>
-      <motion.div {...sectionReveal} transition={{ duration: 0.6, ease: "easeOut" as const, delay: 0.1 }}>
-        <Footer />
-      </motion.div>
-    </div>
-  );
-};
+      <FeaturedCompanies />
+      <RecentJobs />
+      <FeatureGrid />
+      <PipelineVisualization />
+      <StatsSection />
+    </main>
+    <Footer />
+  </div>
+);
 
 export default Index;

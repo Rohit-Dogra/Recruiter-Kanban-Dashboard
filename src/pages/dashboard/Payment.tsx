@@ -186,7 +186,7 @@ export default function Payment() {
                 <Label htmlFor="yearly">
                   Yearly — ₹{(plan.priceYearly || plan.priceMonthly * 12).toLocaleString()}/yr
                   {plan.priceYearly && plan.priceYearly < plan.priceMonthly * 12 && (
-                    <span className="ml-1 text-xs text-green-600 font-medium">Save {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%</span>
+                    <span className="ml-1 text-xs text-success font-medium">Save {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%</span>
                   )}
                 </Label>
               </div>
@@ -227,7 +227,7 @@ export default function Payment() {
             </div>
           )}
           {paymentStatus === "success" && (
-            <div className="flex items-center gap-2 text-sm text-green-600 p-3 bg-green-50 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-success p-3 bg-success/10 rounded-lg">
               <CheckCircle className="w-4 h-4" />
               Payment successful! Redirecting...
             </div>
@@ -239,7 +239,7 @@ export default function Payment() {
             </div>
           )}
           {paymentStatus === "timeout" && (
-            <div className="flex items-center gap-2 text-sm text-yellow-600 p-3 bg-yellow-50 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-warning p-3 bg-warning/10 rounded-lg">
               <Clock className="w-4 h-4" />
               Payment processing is taking longer than expected. Please wait or try again.
             </div>

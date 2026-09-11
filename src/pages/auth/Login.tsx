@@ -93,7 +93,7 @@ const Login = () => {
           </div>
           
           <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="text-muted-foreground">Sign in to your HirerMind account</p>
+          <p className="text-muted-foreground">Sign in to your Hyre account</p>
         </div>
 
         <Card className="bg-gradient-card border-0 shadow-elegant">

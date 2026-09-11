@@ -24,4 +24,19 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Split the big third-party libraries out of the app chunk so a change to
+    // application code doesn't invalidate 500kB of vendor JS in users' caches.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-motion": ["framer-motion"],
+          "vendor-charts": ["recharts"],
+          "vendor-pdf": ["jspdf"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 900,
+  },
 }));

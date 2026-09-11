@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/select";
 
 const statusColors: Record<string, string> = {
-  scheduled: "bg-blue-500/15 text-blue-600",
-  completed: "bg-green-500/15 text-green-600",
-  cancelled: "bg-gray-500/15 text-gray-500",
-  "no-show": "bg-red-500/15 text-red-500",
+  scheduled: "bg-info/15 text-info",
+  completed: "bg-success/15 text-success",
+  cancelled: "bg-muted-foreground/15 text-muted-foreground",
+  "no-show": "bg-destructive/15 text-destructive",
 };
 
 const InterviewManagement = () => {

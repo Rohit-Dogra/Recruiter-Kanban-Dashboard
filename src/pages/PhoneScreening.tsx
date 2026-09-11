@@ -253,7 +253,7 @@ export default function PhoneScreening() {
                           </div>
                           {screening.rating && (
                             <div className="flex items-center gap-1">
-                              <Star className="w-3 h-3 text-yellow-500" />
+                              <Star className="w-3 h-3 text-warning" />
                               {screening.rating}/10
                             </div>
                           )}

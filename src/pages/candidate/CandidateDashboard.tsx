@@ -145,7 +145,7 @@ const CandidateDashboard = () => {
       <CandidateLayout hideFooter>
         <EmptyState
           icon={User}
-          title="Welcome to HirerMind"
+          title="Welcome to Hyre"
           description="Please log in as a candidate to view your dashboard."
           actionLabel="Log In"
           onAction={() => (window.location.href = "/login")}

@@ -56,7 +56,7 @@ export default function PaymentResponse() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {status === "processing" && <Loader2 className="w-5 h-5 animate-spin" />}
-            {status === "success" && <CheckCircle className="w-5 h-5 text-green-600" />}
+            {status === "success" && <CheckCircle className="w-5 h-5 text-success" />}
             {status === "failed" && <XCircle className="w-5 h-5 text-destructive" />}
             {status === "processing" && "Processing..."}
             {status === "success" && "Payment Successful!"}

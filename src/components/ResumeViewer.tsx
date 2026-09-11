@@ -97,15 +97,15 @@ const ResumeViewer = ({ open, onOpenChange, resumeUrl, candidateName }: ResumeVi
         
         <div className="flex-1 min-h-[600px]">
           {loading ? (
-            <div className="flex items-center justify-center h-[600px] border rounded bg-gray-50">
+            <div className="flex items-center justify-center h-[600px] border rounded bg-surface-2">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-info mx-auto mb-4"></div>
                 <p className="text-sm text-muted-foreground">Loading resume...</p>
               </div>
             </div>
           ) : error ? (
-            <div className="flex flex-col items-center justify-center h-[600px] border rounded bg-gray-50">
-              <p className="text-lg mb-4 text-red-600">Error Loading Resume</p>
+            <div className="flex flex-col items-center justify-center h-[600px] border rounded bg-surface-2">
+              <p className="text-lg mb-4 text-destructive">Error Loading Resume</p>
               <p className="text-sm text-muted-foreground mb-4">{error}</p>
               <Button onClick={fetchSignedUrl}>Try Again</Button>
             </div>
@@ -116,7 +116,7 @@ const ResumeViewer = ({ open, onOpenChange, resumeUrl, candidateName }: ResumeVi
               title={`${candidateName} Resume`}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center h-[600px] border rounded bg-gray-50">
+            <div className="flex flex-col items-center justify-center h-[600px] border rounded bg-surface-2">
               <p className="text-lg mb-4">Resume Preview</p>
               <p className="text-sm text-muted-foreground mb-4">
                 Unable to preview resume.
